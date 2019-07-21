@@ -9,6 +9,7 @@
    
 
 2. **Can be done in groups of 1 to 4 persons;** 
+
    One person in this case (just me).
 
    
@@ -27,14 +28,14 @@
 
 5. **The project MUST include:** 
 
-   - **Hierarchical models: ** 
+   - **Hierarchical models:** 
 
      - At least one <u>and</u> more complex of the model used in *<u>homework2</u>*;
 
        > todos
        > 
 
-   - **Lights and Textures: ** 
+   - **Lights and Textures:** 
 
      - At least one light, textures of different kinds (*color*, *normal*, *specular*, ... );
 
@@ -49,7 +50,7 @@
 
        
 
-   - **Animations: ** 
+   - **Animations:** 
 
      - Most objects should be animated, in particular the hierarchical models should perform animations that exploit their structure. ANIMATIONS CANNOT BE IMPORTED, should be implemented by you in javascript (WebGL, ThreeJS or other approved library)
 
