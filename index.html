@@ -16,13 +16,91 @@
 
 		<script src="Common/jquery-3.4.0.min.js"></script>
 		<script src="Common/general_purpose_scripts.js"></script>
+
+		<script src="Common/dsp.js"></script>		<!-- signal FTT -->
+		<script src="Common/three.min.js"></script>
+		
 	</head>
 	
 	<body>
 	
-		. . .
-		Work in progress
-		. . .
+		<div id="animate"> 	</div>
+		<audio src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls></audio>
+
+		<script>
+			// set variables
+			var audio,
+			    frameBufferLength,
+			    bufferSize,
+			    signal,
+			    peak,
+			    fft;
+
+			// Initialize the visualization
+			init();
+
+			function init()
+			{
+				// Get the audio element
+				audio = document.getElementById("audio");
+
+				// Audio event listeners
+				audio.addEventListener("loadedmetadata", onLoadedMetadata, false);
+				audio.addEventListener("MozAudioAvailable", onAudioAvailable, false);
+
+				// Run when metadata has loaded on the audio to be played
+				function onLoadedMetadata()
+				{
+					// Get the  # of channels  of the audio (1-mono, 2-stereo)
+					channels = audio.mozChannels;
+
+					// Set up the frame buffer length
+					frameBufferLength = audio.mozFrameBufferLength;
+
+					// We will use mono for dsp.js, so the buffer size is given by:
+					bufferSize = frameBufferLength / channels;
+
+					// Set up dsp.js for audio analysis
+					signal 	= new Float32Array(bufferSize);
+					peak 	= new Float32Array(bufferSize);
+					fft 	= new FFT(bufferSize, 44100) 
+				};
+
+
+				// Run when audio data is available
+				function onAudioAvailable(event)
+				{
+					// event.frameBuffer  is a Float32Array with the raw audio data (32-bit float values) obtained from decoding the audio;
+					
+					// Audio FFT visualization from dsp.js;
+					// Deinterleave and mix down to <mono> channel audio;
+					signal = DSP.getChannel(DSP.MIX, event.frameBuffer);
+					
+					// Perform forward transform of the signal
+					fft.forward(signal);
+
+					// Compute and get the peak values of the signal
+					for (var i=0; i < bufferSize; i++)
+					{
+						// Equalizer: attenuate low frequents and boost the high ones
+						fft.spectrum[i] *= -1 * Math.log((fft.bufferSize / 2 - i) * (0.5 / fft.bufferSize / 2)) * fft.bufferSize;
+
+						if (peaak[i] < fft.spectrum[i])
+						{
+							// Assign a new peak value
+							peak[i] = fft.spectrum[i];
+						} 
+						else 
+						{
+							// decreasing the peak slowly till a new peak is found
+							peak[i] *= 0.987;
+						}
+					}
+				}; // --- end onAudioAvailable(event) --- //
+
+			}; // --- end init() --- //
+		</script>
+
 
 	</body>
 </html>
