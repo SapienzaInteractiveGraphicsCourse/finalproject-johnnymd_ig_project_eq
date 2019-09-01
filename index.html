@@ -7,7 +7,7 @@
 
         <meta name="description"   content="Interactive Graphics  -  Final Project - 2019">
         <meta name="keywords"      content="HTML, CSS, JavaScript, GLSL">
-        <meta name="author"        content="Ion Tataru">        
+        <meta name="author"        content="JohnnyMDA">        
         <meta name="viewport"      content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon"  href="ig_cube.ico">
 
@@ -17,7 +17,7 @@
 		<script src="Common/jquery-3.4.0.min.js"></script>
 		<script src="Common/general_purpose_scripts.js"></script>
 
-		<script src="Common/dsp.js"></script>		<!-- signal FTT -->
+		<script src="Common/dsp.js"></script>		<!-- signal FTT (Fast Fourier Transform) -->
 		<script src="Common/three.min.js"></script>
 		
 	</head>
@@ -25,7 +25,10 @@
 	<body>
 	
 		<div id="animate"> 	</div>
-		<audio src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls></audio>
+
+		<div align="center">
+			<audio id="my_audio" src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls></audio>
+		</div>
 
 		<script>
 			// set variables
@@ -37,20 +40,28 @@
 			    fft;
 
 			// Initialize the visualization
-			init();
+			window.onload=function()
+			{
+				init();
+			}
 
 			function init()
 			{
 				// Get the audio element
-				audio = document.getElementById("audio");
+				audio = document.getElementById("my_audio");
 
 				// Audio event listeners
-				audio.addEventListener("loadedmetadata", onLoadedMetadata, false);
-				audio.addEventListener("MozAudioAvailable", onAudioAvailable, false);
+				if(true)
+				{
+					audio.addEventListener("loadeddata", 		onLoadedMetadata);
+					audio.addEventListener("MozAudioAvailable", onAudioAvailable);
+				}
+
 
 				// Run when metadata has loaded on the audio to be played
 				function onLoadedMetadata()
 				{
+					console.log("<<< start --- onLoadedMetadata() >>>");
 					// Get the  # of channels  of the audio (1-mono, 2-stereo)
 					channels = audio.mozChannels;
 
@@ -63,7 +74,8 @@
 					// Set up dsp.js for audio analysis
 					signal 	= new Float32Array(bufferSize);
 					peak 	= new Float32Array(bufferSize);
-					fft 	= new FFT(bufferSize, 44100) 
+					fft 	= new FFT(bufferSize, 44100);
+					console.log("fft = " + fft.spectrum);
 				};
 
 
@@ -71,7 +83,8 @@
 				function onAudioAvailable(event)
 				{
 					// event.frameBuffer  is a Float32Array with the raw audio data (32-bit float values) obtained from decoding the audio;
-					
+					console.log("Audio available, processing...");
+
 					// Audio FFT visualization from dsp.js;
 					// Deinterleave and mix down to <mono> channel audio;
 					signal = DSP.getChannel(DSP.MIX, event.frameBuffer);
@@ -97,6 +110,8 @@
 						}
 					}
 				}; // --- end onAudioAvailable(event) --- //
+
+				
 
 			}; // --- end init() --- //
 		</script>
