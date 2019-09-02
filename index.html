@@ -19,6 +19,7 @@
 
 		<script src="Common/dsp.js"></script>		<!-- signal FTT (Fast Fourier Transform) -->
 		<script src="Common/three.min.js"></script>
+		<script src="Common/Stats.js"></script>		<!-- JavaScript Performance Monitor -->
 		
 	</head>
 	
@@ -27,7 +28,7 @@
 		<div id="animate"> 	</div>
 
 		<div align="center">
-			<audio id="my_audio" src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls></audio>
+			<audio id="my_audio" src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls>Your browser does not support the audio element.</audio>
 		</div>
 
 		<script>
@@ -71,7 +72,7 @@
 					// We will use mono for dsp.js, so the buffer size is given by:
 					bufferSize = frameBufferLength / channels;
 
-					// Set up dsp.js for audio analysis
+					// Set up dsp.js for audio analysis (ready to use)
 					signal 	= new Float32Array(bufferSize);
 					peak 	= new Float32Array(bufferSize);
 					fft 	= new FFT(bufferSize, 44100);
