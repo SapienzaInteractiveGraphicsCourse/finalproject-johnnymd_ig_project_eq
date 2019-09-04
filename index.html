@@ -38,25 +38,270 @@
 			    bufferSize,
 			    signal,
 			    peak,
-			    fft;
+			    fft,
+
+			    display,
+
+			    stats,
+		
+			    renderer,
+		
+			    scene,
+			    sceneHeight,
+			    sceneWidth,
+
+			    camera,
+			    cameraFar,
+			    cameraNear,
+			    cameraAspect,
+			    cameraViewAngle,
+
+			    cubes,
+			    numCubes;
+
+
 
 			// Initialize the visualization
 			window.onload=function()
 			{
-				init();
+  				init();
 			}
 
 			function init()
 			{
+				// enable THREE.js logs
+				// console.log(THREE);
+
 				// Get the audio element
-				audio = document.getElementById("my_audio");
+				audio 	= document.getElementById("my_audio");
+
+				// Get the DOM element where to display
+				display = document.getElementById("animate"); 
+
+				console.log("display = " + display);
+
+				// Set up the scene dimensions
+				sceneHeight = window.innerHeight;
+				sceneWidth 	= window.innerWidth;
+
+				// Set the camera properties
+				cameraFar		= 10000;
+				cameraNear		= 0.1;
+				cameraAspect	= sceneWidth / sceneHeight;
+				cameraViewAngle	= 45;
+
+				// Create the renderer and camera (the WebGL one)
+				renderer 	= new THREE.WebGLRenderer();
+				camera 		= new THREE.PerspectiveCamera(
+												cameraViewAngle, 
+												cameraAspect, 
+												cameraNear, 
+												cameraFar
+											);
+
+				// Create the scene
+				scene 	  = new THREE.Scene();
+
+				// Set the scene's background color
+				//scene.background = new THREE.Color( '#FCFCFC' );
+
+				// add some fog in the scene (black fog)
+				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075);
+
+				// Set the Camera position (initial)
+				camera.position.z = 560;		// move backward
+
+				// START the (WebGL) renderer
+				renderer.setSize(sceneWidth, sceneHeight);
+
+				// Append the renderer DOM element on 'display'
+				display.appendChild(renderer.domElement);
+				
+				// Create the (main) sphere
+				createSphere();
+
+				// set up the Stats.js for statistic display and add them to the DOM
+				stats = new Stats();
+				stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+				document.body.appendChild( stats.dom );
+
 
 				// Audio event listeners
 				if(true)
 				{
 					audio.addEventListener("loadeddata", 		onLoadedMetadata);
 					audio.addEventListener("MozAudioAvailable", onAudioAvailable);
+					loop();
 				}
+
+
+				function createSphere() 
+				{
+					var radius 		= 100,
+						segments	= 32,
+						rings 		= 16,
+
+						sphere,
+						sphereFaces,
+						sphereMaterial,
+
+						cubeSize 		= 10,
+						cubeHalfSize 	= cubeSize / 2,
+
+						particleGeometry,
+						particles,
+						numParticles	= 4000,
+						spaceRangePS	= 1000;
+
+					sphere = new THREE.Mesh( 
+									new THREE.SphereGeometry( radius, segments, rings), 
+									new THREE.MeshNormalMaterial()  // remove it later 
+																	// we don't want to see it
+								 );
+
+										sphere.rotateX(0.1);
+
+					// Add the sphere to the scene
+					scene.add(sphere);
+
+
+					//###################//
+					//###### CUBES ######//
+					//###################//
+					
+					// Get the faces of the sphere
+					sphereFaces	= sphere.geometry.faces;
+
+					// New cubes array
+					cubes = [];
+
+					// Loop through every sphere's face
+					var cube, sphereFace, vertices, scaleVector, faceCentroid;
+					for (var i=0; i < sphereFaces.length; i++) 
+					{
+						// Get the i-th sphere's face
+						sphereFace = sphereFaces[i];
+
+						// Create the i-th cube
+						cube = new THREE.Mesh(
+									new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize),
+									new THREE.MeshNormalMaterial()
+									);
+
+						// Get the cube vertexes (corners)
+						vertices = cube.geometry.vertices;
+						for (var v=0; v < vertices.length; v++)
+						{
+							// Shift each vertex in order to e able to scale
+							// the cube from the bottom rather then the center 
+							vertices[v].z  -= cubeHalfSize;
+						}
+
+						// Move the v-th cube to the i-th face's center
+						faceCentroid = new THREE.Vector3( 0, 0, 0 );
+				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.a ] );
+				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.b ] );
+				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.c ] );
+				            faceCentroid.divideScalar( 3 );
+
+						cube.position.x = faceCentroid.x;
+						cube.position.y = faceCentroid.y;
+						cube.position.z = faceCentroid.z;
+
+						// Scale the cube so it's smaller near the poles of the sphere (visual effect)
+						scaleValue 		= Math.abs(cube.position.y) / 100;
+						cube.scale.x 	= 1 - (scaleValue * 0.7);
+						cube.scale.y 	= 1 - (scaleValue * 0.7);
+						cube.scale.z 	= 1 - (scaleValue * 0.7);
+
+						cube.scaleValue = 1 - (scaleValue * 0.7);
+
+						// Make the cube look at the center of the sphere
+						cube.lookAt(sphere.position);
+
+						// Push the new cube in the cubes' array
+						cubes.push(cube);
+
+						// Add the new cube to the scene
+						scene.add(cube);
+					};
+					numCubes = cubes.length;
+
+
+					//#########################//
+					//#### PARTICLE SYSTEM ####//
+					//#########################//
+
+					var v,
+						color,
+						size, 
+						materials 				  = [ ],
+						particlesParamsCollection = [ 	[0xffffff, 1.75], 
+														[0xcccccc, 1.50],
+														[0xaaaaaa, 1.25],
+														[0x888888, 0.75],
+														[0x666666, 0.50]  ]; // [hex color, size]
+
+					// New geometry for the particles
+					particleGeometry = new THREE.Geometry();
+
+					// Create and add the particles' vectors to the geometry
+					for (var i=0; i < numParticles; i++) 
+					{
+						v = new THREE.Vector3(	Math.random() * 2*spaceRangePS - spaceRangePS,
+												Math.random() * 2*spaceRangePS - spaceRangePS,
+												Math.random() * 2*spaceRangePS - spaceRangePS
+											);  // (random points around 0 in spaceRangePS)
+						particleGeometry.vertices.push(v);
+					};
+
+					// create ONE PARTICLE SYSTEM for each [size, color] 
+					for (var i=0; i < particlesParamsCollection.length; i++)
+					{
+						color 	= particlesParamsCollection[i][0]; 
+						size 	= particlesParamsCollection[i][1];
+						
+						materials[i] = new THREE.PointsMaterial( {size : size} );
+						materials[i].color.setHex(color);
+
+						particles 	 = new THREE.Points( particleGeometry, materials[i] );
+
+						particles.rotation.x = Math.random() * 5;
+						particles.rotation.y = Math.random() * 5;
+						particles.rotation.z = Math.random() * 5;
+
+						scene.add(particles);
+					};
+				};
+
+
+
+
+				function loop() {
+					// START STATS.js monitoring
+					stats.begin();
+
+					var cube;
+					for (var i=0; i < numCubes; i++)
+					{
+						cube = cubes[i];
+
+						// Scale the cube high as the i-th peak amplitude (demo 1)
+						cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);	
+					};
+
+					// Render the scene
+					renderer.render(scene, camera);
+
+
+					// END STATS.js monitoring
+					stats.end();
+
+
+					// new Animation Frame Request
+					window.requestAnimationFrame(loop);
+				}
+
 
 
 				// Run when metadata has loaded on the audio to be played
@@ -76,7 +321,6 @@
 					signal 	= new Float32Array(bufferSize);
 					peak 	= new Float32Array(bufferSize);
 					fft 	= new FFT(bufferSize, 44100);
-					console.log("fft = " + fft.spectrum);
 				};
 
 
