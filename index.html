@@ -154,13 +154,14 @@
 						numParticles	= 4000,
 						spaceRangePS	= 1000;
 
+					//#########################//
+					//###### MAIN SPHERE ######//
+					//#########################//
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
 									new THREE.MeshNormalMaterial()  // remove it later 
 																	// we don't want to see it
 								 );
-
-										sphere.rotateX(0.1);
 
 					// Add the sphere to the scene
 					scene.add(sphere);
@@ -290,10 +291,14 @@
 						// Scale the cube high as the i-th peak amplitude (demo 1)
 						//	cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);	
 					};
+
+					// Sphere rotation (all the hierarchical structure of the sphere will rotate)
 					sphere.rotation.x += 0.01;
 					sphere.rotation.y += 0.01;
 					sphere.rotation.z -= 0.0085;
 
+					// Particle system rotation
+					// ...todo...
 
 					// Render the scene
 					renderer.render(scene, camera);
