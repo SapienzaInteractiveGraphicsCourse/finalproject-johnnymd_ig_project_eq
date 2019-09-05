@@ -1,6 +1,6 @@
 ## Interactive Graphics  -  Final Project  -  2019
 
-### Project requirements: 
+### Project requirements:
 
 1. **Project theme (*personal choice*);** 
 
@@ -56,5 +56,8 @@
 
        > todos
 
-   
+
+
+
+>   [Web Demo](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/)
 
