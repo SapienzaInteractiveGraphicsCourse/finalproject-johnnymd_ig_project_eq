@@ -127,14 +127,32 @@
 				stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 				document.body.appendChild( stats.dom );
 
-
-				// Audio event listeners
+				//#########################//
+				//#### EVENT LISTENERS ####// 
+				//#########################//
 				if(true)
 				{
+					window.addEventListener("resize", function(){
+						// Set up the scene dimensions
+						sceneHeight 	= window.innerHeight;
+						sceneWidth 		= window.innerWidth;
+
+						camera.aspect 	= sceneWidth / sceneHeight;
+					    camera.updateProjectionMatrix();
+
+					    renderer.setSize(sceneWidth, sceneHeight);
+					    renderer.render( scene, camera );
+						console.log("DEBUG: window resized !\n");
+					});
+
 					audio.addEventListener("loadeddata", 		onLoadedMetadata);
+					
 					audio.addEventListener("MozAudioAvailable", onAudioAvailable);
+
+					// Call the loop() routine
 					loop();
 				}
+				
 
 
 				function createSphere() 
