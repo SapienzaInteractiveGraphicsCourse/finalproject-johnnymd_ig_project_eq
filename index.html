@@ -56,6 +56,8 @@
 			    cameraAspect,
 			    cameraViewAngle,
 
+			    sphere,
+
 			    cubes,
 			    numCubes;
 
@@ -141,7 +143,6 @@
 						segments	= 32,
 						rings 		= 16,
 
-						sphere,
 						sphereFaces,
 						sphereMaterial,
 
@@ -223,7 +224,7 @@
 						cubes.push(cube);
 
 						// Add the new cube to the scene
-						scene.add(cube);
+						sphere.add(cube);
 					};
 					numCubes = cubes.length;
 
@@ -287,12 +288,15 @@
 						cube = cubes[i];
 
 						// Scale the cube high as the i-th peak amplitude (demo 1)
-						cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);	
+						//	cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);	
 					};
+					sphere.rotation.x += 0.01;
+					sphere.rotation.y += 0.01;
+					sphere.rotation.z -= 0.0085;
+
 
 					// Render the scene
 					renderer.render(scene, camera);
-
 
 					// END STATS.js monitoring
 					stats.end();
