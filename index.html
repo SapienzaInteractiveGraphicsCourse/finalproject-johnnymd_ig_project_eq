@@ -61,7 +61,7 @@
 			    cubes,
 			    numCubes;
 
-
+			    
 
 			// Initialize the visualization
 			window.onload=function()
@@ -93,7 +93,7 @@
 				cameraViewAngle	= 45;
 
 				// Create the renderer and camera (the WebGL one)
-				renderer 	= new THREE.WebGLRenderer();
+				renderer 	= new THREE.WebGLRenderer( { antialias: true } );
 				camera 		= new THREE.PerspectiveCamera(
 												cameraViewAngle, 
 												cameraAspect, 
@@ -153,7 +153,6 @@
 					loop();
 				}
 				
-
 
 				function createSphere() 
 				{
@@ -307,7 +306,7 @@
 						cube = cubes[i];
 
 						// Scale the cube high as the i-th peak amplitude (demo 1)
-						//	cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);	
+						// cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);
 					};
 
 					// Sphere rotation (all the hierarchical structure of the sphere will rotate)
@@ -316,7 +315,7 @@
 					sphere.rotation.z -= 0.0085;
 
 					// Particle system rotation
-					// ...todo...
+					// ...TODO...
 
 					// Render the scene
 					renderer.render(scene, camera);
@@ -329,8 +328,7 @@
 					window.requestAnimationFrame(loop);
 				}
 
-
-
+				
 				// Run when metadata has loaded on the audio to be played
 				function onLoadedMetadata()
 				{
@@ -363,6 +361,7 @@
 					
 					// Perform forward transform of the signal
 					fft.forward(signal);
+
 
 					// Compute and get the peak values of the signal
 					for (var i=0; i < bufferSize; i++)
