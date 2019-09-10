@@ -17,7 +17,6 @@
 		<script src="Common/jquery-3.4.0.min.js"></script>
 		<script src="Common/general_purpose_scripts.js"></script>
 
-		<script src="Common/dsp.js"></script>		<!-- signal FTT (Fast Fourier Transform) -->
 		<script src="Common/three.min.js"></script>
 		<script src="Common/Stats.js"></script>		<!-- JavaScript Performance Monitor -->
 		
@@ -90,7 +89,7 @@
 				cameraFar		= 10000;
 				cameraNear		= 0.1;
 				cameraAspect	= sceneWidth / sceneHeight;
-				cameraViewAngle	= 45;
+				cameraViewAngle	= 65;
 
 				// Create the renderer and camera (the WebGL one)
 				renderer 	= new THREE.WebGLRenderer( { antialias: true } );
@@ -125,6 +124,8 @@
 				// set up the Stats.js for statistic display and add them to the DOM
 				stats = new Stats();
 				stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+				stats.dom.style.top 	= '10px';
+				stats.dom.style.left 	= '10px';
 				document.body.appendChild( stats.dom );
 
 				//#########################//
@@ -176,8 +177,8 @@
 					//#########################//
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
-									new THREE.MeshNormalMaterial()  // remove it later 
-																	// we don't want to see it
+									new THREE.MeshNormalMaterial()  	// remove it later 
+										    							// we don't want to see it
 								 );
 
 					// Add the sphere to the scene
@@ -196,7 +197,7 @@
 
 					// Loop through every sphere's face
 					var cube, sphereFace, vertices, scaleVector, faceCentroid;
-					for (var i=0; i < sphereFaces.length; i++) 
+					for (var i=0, len=sphereFaces.length; i < len; i++) 
 					{
 						// Get the i-th sphere's face
 						sphereFace = sphereFaces[i];
@@ -275,9 +276,9 @@
 					};
 
 					// create ONE PARTICLE SYSTEM for each [size, color] 
-					for (var i=0; i < particlesParamsCollection.length; i++)
+					for (var i=0, len=particlesParamsCollection.length; i < len; i++)
 					{
-						color 	= particlesParamsCollection[i][0]; 
+						color 	= particlesParamsCollection[i][0];
 						size 	= particlesParamsCollection[i][1];
 						
 						materials[i] = new THREE.PointsMaterial( {size : size} );
@@ -345,41 +346,41 @@
 					// Set up dsp.js for audio analysis (ready to use)
 					signal 	= new Float32Array(bufferSize);
 					peak 	= new Float32Array(bufferSize);
-					fft 	= new FFT(bufferSize, 44100);
+					//fft 	= new FFT(bufferSize, 44100);
 				};
 
 
 				// Run when audio data is available
 				function onAudioAvailable(event)
 				{
-					// event.frameBuffer  is a Float32Array with the raw audio data (32-bit float values) obtained from decoding the audio;
-					console.log("Audio available, processing...");
+					// // event.frameBuffer  is a Float32Array with the raw audio data (32-bit float values) obtained from decoding the audio;
+					// console.log("Audio available, processing...");
 
-					// Audio FFT visualization from dsp.js;
-					// Deinterleave and mix down to <mono> channel audio;
-					signal = DSP.getChannel(DSP.MIX, event.frameBuffer);
+					// // Audio FFT visualization from dsp.js;
+					// // Deinterleave and mix down to <mono> channel audio;
+					// signal = DSP.getChannel(DSP.MIX, event.frameBuffer);
 					
-					// Perform forward transform of the signal
-					fft.forward(signal);
+					// // Perform forward transform of the signal
+					// fft.forward(signal);
 
 
-					// Compute and get the peak values of the signal
-					for (var i=0; i < bufferSize; i++)
-					{
-						// Equalizer: attenuate low frequents and boost the high ones
-						fft.spectrum[i] *= -1 * Math.log((fft.bufferSize / 2 - i) * (0.5 / fft.bufferSize / 2)) * fft.bufferSize;
+					// // Compute and get the peak values of the signal
+					// for (var i=0; i < bufferSize; i++)
+					// {
+					// 	// Equalizer: attenuate low frequents and boost the high ones
+					// 	fft.spectrum[i] *= -1 * Math.log((fft.bufferSize / 2 - i) * (0.5 / fft.bufferSize / 2)) * fft.bufferSize;
 
-						if (peaak[i] < fft.spectrum[i])
-						{
-							// Assign a new peak value
-							peak[i] = fft.spectrum[i];
-						} 
-						else 
-						{
-							// decreasing the peak slowly till a new peak is found
-							peak[i] *= 0.987;
-						}
-					}
+					// 	if (peaak[i] < fft.spectrum[i])
+					// 	{
+					// 		// Assign a new peak value
+					// 		peak[i] = fft.spectrum[i];
+					// 	} 
+					// 	else 
+					// 	{
+					// 		// decreasing the peak slowly till a new peak is found
+					// 		peak[i] *= 0.987;
+					// 	}
+					// }
 				}; // --- end onAudioAvailable(event) --- //
 
 				
