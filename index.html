@@ -33,6 +33,7 @@
 		<script>
 			// set variables
 			var audio,
+				audioContext,
 			    frameBufferLength,
 			    bufferSize,
 			    signal,
@@ -68,13 +69,15 @@
   				init();
 			}
 
+
 			function init()
 			{
 				// enable THREE.js logs
 				// console.log(THREE);
 
-				// Get the audio element
-				audio 	= document.getElementById("my_audio");
+				// Get the audio element and a new Audio Context (Web Audio API)
+				audio 		 = document.getElementById("my_audio");
+				audioContext = newAudioContext();
 
 				// Get the DOM element where to display
 				display = document.getElementById("animate"); 
@@ -382,7 +385,22 @@
 					// 	}
 					// }
 				}; // --- end onAudioAvailable(event) --- //
+				
 
+				function newAudioContext()
+				{
+					var contextClass = ( window.AudioContext 		||  window.webkitAudioContext 	||
+										 window.mozAudioContext 	||	window.oAudioContext 		||
+										 window.msAudioContext );
+					if (contextClass)
+					{ 	// Web Audio API is available.
+						console.log("DEBUG: New audioContext acquired !");
+					 	return  new contextClass();
+					}else{
+						// No  Web Audio API  support on the current browser 
+						window.location.href = 'alert.html';
+					}
+				};
 				
 
 			}; // --- end init() --- //

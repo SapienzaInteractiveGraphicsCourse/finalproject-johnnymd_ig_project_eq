@@ -11,6 +11,12 @@ body {
 	padding         : 0;
 	
 	background-color: #FCFCFC;
+	color 			: #494949;
 	
 	font-size       : 13px		!important;
+}
+
+a:link {
+    text-decoration : none;
+    text-shadow 	: 0 0 1px rgba(0, 0, 0, 0.9);
 }
