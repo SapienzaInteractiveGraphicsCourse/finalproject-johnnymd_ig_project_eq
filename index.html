@@ -25,12 +25,8 @@
 	</head>
 	
 	<body>
-	
-
-<!-- 		<div align="center">
-			<audio id="my_audio" src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls>Your browser does not support the audio element.</audio>
-		</div> -->
-
+		
+		<!-- Player Container -->
 		<div id="container" class="disabled">
 
 			<div id="cover-art">
@@ -55,7 +51,7 @@
 				<div id="playlist">
 					<div id="track-details" title="Show playlist">
 						<i class="fa fa-sort"></i>
-						<p id="track-desc">There are no tracks loaded in the player.</p>
+						<p id="track-desc">There are no tracks loaded in the player. Drag and Drop some from your PC  or  wait for loading the default ones.</p>
 						<p id="track-time">
 							<span id="current">-</span> / <span id="total">-</span>
 						</p>
@@ -87,11 +83,12 @@
 		<script>
 			// set variables
 			var analyser,
+			    numChannels,
 			    frameBufferLength,
-			    bufferSize,
 
-			    peak,
+			    peaks,
 			    fft,
+			    fftSize = 32, 	// powers of 2 (default --> 2048) (lower --> faster)
 
 			    display,
 
@@ -113,8 +110,9 @@
 
 			    cubes,
 			    numCubes,
+
 			    audio_path = "audio/",
-			    audio_list = ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];
+			    audio_list = ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default //
 
 			    
 
@@ -225,7 +223,9 @@
 					wavesurfer.on('audioprocess', function(e) {
 						// update the 'fft' array
 						analyser.getByteFrequencyData(fft);
-						// console.log("DEBUG: fft = " + fft);
+
+						// update the peaks array
+						onAudioAvailable();		// console.log("DEBUG:\nfft \t= " + fft + "\npeaks \t= " + peaks);
 					});
 
 
@@ -386,10 +386,19 @@
 				// Get the wavesurfer's analyser node object
 				analyser 	= wavesurfer.backend.analyser;
 
+				// 'channelCountMode' is set to 'explicit' on an analyserNode,
+				// so we can get the correct # of channels of the AudioNode in input 
+				numChannels = analyser.channelCount;
+				console.log("DEBUG:\nnumChannels = " + numChannels);
+
+				// Set the FFT size (default fftSize=2048)(powers of 2)
+				//         (fft scale to one channel size)
+				analyser.fftSize = fftSize * numChannels;
+
 				// Get the frequency data (for the 1st time)
 				//(it will be updated on 'onaudioprocess' event firing)
 				fft 		= new Uint8Array(analyser.frequencyBinCount);
-				console.log("DENUG: fft = " + fft);
+				peaks 		= new Float32Array(fftSize);
 
 
 
@@ -402,8 +411,8 @@
 					{
 						cube = cubes[i];
 
-						// Scale the cube high as the i-th peak amplitude (demo 1)
-						// cube.scale.z = cube.scaleValue + ( (peak[i])  ?  1 + (3 * (fft.spectrum[i] / peak[i]))  :  0);
+						// Scale the cube high as the i-th peaks amplitude (demo 1)
+						// cube.scale.z = cube.scaleValue + ( (peaks[i])  ?  1 + (3 * (fft.spectrum[i] / peaks[i]))  :  0);
 					};
 
 					// Sphere rotation (all the hierarchical structure of the sphere will rotate)
@@ -423,79 +432,35 @@
 
 					// new Animation Frame Request
 					window.requestAnimationFrame(loop);
-				}
-
 				
-				// Run when metadata has loaded on the audio to be played
-				function onLoadedMetadata()
+				};  // END loop()
+
+
+
+
+				// Run when audio data is available (after fft updates)
+				function onAudioAvailable()
 				{
-					console.log("<<< start --- onLoadedMetadata() >>>");
-					// Get the  # of channels  of the audio (1-mono, 2-stereo)
-					channels = audio.mozChannels;
+					// Compute and get the peaks' values of the audio signal
+					for (var i=0; i < fftSize; i++)
+					{
+						// Equalizer: attenuate low frequents and boost the high ones
+						fft[i] *= -1 * Math.log((fftSize / 2 - i) * (0.5 / fftSize / 2)) * fftSize;
 
-					// Set up the frame buffer length
-					frameBufferLength = audio.mozFrameBufferLength;
-
-					// We will use mono for dsp.js, so the buffer size is given by:
-					bufferSize = frameBufferLength / channels;
-
-					// Set up dsp.js for audio analysis (ready to use)
-					signal 	= new Float32Array(bufferSize);
-					peak 	= new Float32Array(bufferSize);
-					//fft 	= new FFT(bufferSize, 44100);
-				};
-
-
-				// Run when audio data is available
-				function onAudioAvailable(event)
-				{
-					// // event.frameBuffer  is a Float32Array with the raw audio data (32-bit float values) obtained from decoding the audio;
-					// console.log("Audio available, processing...");
-
-					// // Audio FFT visualization from dsp.js;
-					// // Deinterleave and mix down to <mono> channel audio;
-					// signal = DSP.getChannel(DSP.MIX, event.frameBuffer);
-					
-					// // Perform forward transform of the signal
-					// fft.forward(signal);
-
-
-					// // Compute and get the peak values of the signal
-					// for (var i=0; i < bufferSize; i++)
-					// {
-					// 	// Equalizer: attenuate low frequents and boost the high ones
-					// 	fft.spectrum[i] *= -1 * Math.log((fft.bufferSize / 2 - i) * (0.5 / fft.bufferSize / 2)) * fft.bufferSize;
-
-					// 	if (peaak[i] < fft.spectrum[i])
-					// 	{
-					// 		// Assign a new peak value
-					// 		peak[i] = fft.spectrum[i];
-					// 	} 
-					// 	else 
-					// 	{
-					// 		// decreasing the peak slowly till a new peak is found
-					// 		peak[i] *= 0.987;
-					// 	}
-					// }
-				}; // --- end onAudioAvailable(event) --- //
-				
-
-				function newAudioContext()
-				{
-					var contextClass = ( window.AudioContext 		||  window.webkitAudioContext 	||
-										 window.mozAudioContext 	||	window.oAudioContext 		||
-										 window.msAudioContext );
-					if (contextClass)
-					{ 	// Web Audio API is available.
-						console.log("DEBUG: New audioContext acquired !");
-					 	return  new contextClass();
-					}else{
-						// No  Web Audio API  support on the current browser 
-						window.location.href = 'alert.html';
+						if (peaks[i] < fft[i])
+						{
+							// Assign a new peak value
+							peaks[i] = fft[i];
+						} 
+						else 
+						{
+							// decreasing the peak slowly till a new peaks is found
+							peaks[i] *= 0.987;
+						}
 					}
-				};
+				}; // --- END onAudioAvailable() --- //
 
-			}; // --- end init() --- //
+			}; // --- END init() --- //
 		</script>
 
 

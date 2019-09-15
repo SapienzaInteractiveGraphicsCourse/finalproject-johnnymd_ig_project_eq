@@ -212,9 +212,26 @@ function readFile(file,done) {
 	Audio player.
  ------------------*/
 
-var wavesurfer = Object.create(WaveSurfer);
+function newAudioContext()
+{
+	var contextClass = ( 	window.AudioContext 	||  window.webkitAudioContext 	||
+							window.mozAudioContext 	||	window.oAudioContext 		||
+							window.msAudioContext );
+	if (contextClass)
+	{ 	// Web Audio API is available.
+		console.log("DEBUG: New custom audioContext acquired !");
+		return  new contextClass();
+	}else{
+		// No  Web Audio API  support on the current browser 
+		window.location.href = 'alert.html';
+	}
+};
+
+var wavesurfer 			 = Object.create(WaveSurfer);
+var myAudioCustomContext = newAudioContext();
 
 wavesurfer.init({
+	audioContext   : myAudioCustomContext,
 	container 	   : document.querySelector('#wave'),
 	cursorColor    : '#aaa',
 	cursorWidth    : 1,
