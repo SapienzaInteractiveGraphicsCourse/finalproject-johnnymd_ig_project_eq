@@ -9,10 +9,12 @@
         <meta name="keywords"      content="HTML, CSS, JavaScript, GLSL">
         <meta name="author"        content="JohnnyMDA">        
         <meta name="viewport"      content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon"  href="ig_cube.ico">
+        <link rel="shortcut icon"  href="img/ig_cube.ico">
 
         <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,400i,700|PT+Serif:400,400i&subset=latin-ext" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="style/style.css">
+		<link href='style/player-style/styles.css' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="style/player-style/font-awesome-4.3.0/css/font-awesome.min.css">
 
 		<script src="Common/jquery-3.4.0.min.js"></script>
 		<script src="Common/general_purpose_scripts.js"></script>
@@ -24,19 +26,70 @@
 	
 	<body>
 	
-		<div id="animate"> 	</div>
 
-		<div align="center">
+<!-- 		<div align="center">
 			<audio id="my_audio" src="audio/Me & My Toothbrush - Push the Tempo.mp3" autobuffer autoloop loop controls>Your browser does not support the audio element.</audio>
+		</div> -->
+
+		<div id="container" class="disabled">
+
+			<div id="cover-art">
+				<div id="animate"></div>
+			</div>
+
+
+			<div id="wave"></div>
+
+
+			<div id="control-bar">
+				<div class="player-control">
+					<div id="previous-button" title="Previous"><i class="fa fa-fast-backward"></i></div>
+					<div id="play-button" title="Play"><i class="fa fa-play"></i></div>
+					<div id="pause-button" title="Pause"><i class="fa fa-pause"></i></div>
+					<div id="stop-button" title="Stop"><i class="fa fa-stop"></i></div>
+					<div id="next-button" title="Next"><i class="fa fa-fast-forward"></i></div>
+					<div id="shuffle-button" title="Shuffle Off"><i class="fa fa-random"></i></div>
+					<div id="repeat-button" title="Repeat Off"><i class="fa fa-refresh"><span>1</span></i></div>
+				</div>
+
+				<div id="playlist">
+					<div id="track-details" title="Show playlist">
+						<i class="fa fa-sort"></i>
+						<p id="track-desc">There are no tracks loaded in the player.</p>
+						<p id="track-time">
+							<span id="current">-</span> / <span id="total">-</span>
+						</p>
+					</div>
+
+					<div id="expand-bar" class="hidden">
+<!-- 						<form>
+							<label for="searchBox">Search</label><div><input id="searchBox" type="search" name="search"></div>
+						</form> -->
+
+						<ul id="list"></ul>
+					</div>
+				</div>
+			</div>  <!-- END control-bar -->
+
+
+			<div id="drop-zone" class="hidden">Drag &amp; Drop Audio Files Here</div>
+
 		</div>
 
+
+		<!-- Web Audio Player SCRIPTS -->
+		<script src="Common/id3-minimized.js">	  	</script>
+		<script src="Common/wavesurfer.min.js">	  	</script>
+		<script src="Common/player_script.js">	  	</script>
+
+		
+		<!-- MAIN visualization SCRIPT -->
 		<script>
 			// set variables
-			var audio,
-				audioContext,
+			var analyser,
 			    frameBufferLength,
 			    bufferSize,
-			    signal,
+
 			    peak,
 			    fft,
 
@@ -59,7 +112,9 @@
 			    sphere,
 
 			    cubes,
-			    numCubes;
+			    numCubes,
+			    audio_path = "audio/",
+			    audio_list = ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];
 
 			    
 
@@ -74,10 +129,10 @@
 			{
 				// enable THREE.js logs
 				// console.log(THREE);
+				
+				// Load the default songs in the playlist
+				createDefaultPlaylist(audio_path, audio_list);
 
-				// Get the audio element and a new Audio Context (Web Audio API)
-				audio 		 = document.getElementById("my_audio");
-				audioContext = newAudioContext();
 
 				// Get the DOM element where to display
 				display = document.getElementById("animate"); 
@@ -136,7 +191,9 @@
 				//#########################//
 				if(true)
 				{
-					window.addEventListener("resize", function(){
+					// Update the scene on window resize dynamically
+					window.addEventListener("resize", function()
+					{
 						// Set up the scene dimensions
 						sceneHeight 	= window.innerHeight;
 						sceneWidth 		= window.innerWidth;
@@ -149,9 +206,29 @@
 						console.log("DEBUG: window resized !\n");
 					});
 
-					audio.addEventListener("loadeddata", 		onLoadedMetadata);
-					
-					audio.addEventListener("MozAudioAvailable", onAudioAvailable);
+
+					// computational resources optimization when out of view 
+					document.addEventListener('visibilitychange', function()
+					{
+						if (document.hidden)
+						{
+							// stop rendering  &&  stop audio
+							// ... TODOS ...
+						}else{
+							// resume rendering  &&  audio
+							// ... TODOS ...
+						}
+					});
+
+
+					// 'audioprocess' event fires continuously as the audio plays. Also fires on seeking.
+					wavesurfer.on('audioprocess', function(e) {
+						// update the 'fft' array
+						analyser.getByteFrequencyData(fft);
+						// console.log("DEBUG: fft = " + fft);
+					});
+
+
 
 					// Call the loop() routine
 					loop();
@@ -297,6 +374,22 @@
 					};
 				};
 
+				//#########################//
+				//####    Audio Data   ####//
+				//#########################//
+
+				// Log wavesurfer's warnings
+				wavesurfer.on('error', function(e) {
+        				console.warn(e);
+    			});
+
+				// Get the wavesurfer's analyser node object
+				analyser 	= wavesurfer.backend.analyser;
+
+				// Get the frequency data (for the 1st time)
+				//(it will be updated on 'onaudioprocess' event firing)
+				fft 		= new Uint8Array(analyser.frequencyBinCount);
+				console.log("DENUG: fft = " + fft);
 
 
 
@@ -401,7 +494,6 @@
 						window.location.href = 'alert.html';
 					}
 				};
-				
 
 			}; // --- end init() --- //
 		</script>
