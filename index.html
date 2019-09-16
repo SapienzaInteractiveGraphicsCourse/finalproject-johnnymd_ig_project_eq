@@ -84,7 +84,6 @@
 			// set variables
 			var analyser,
 			    numChannels,
-			    frameBufferLength,
 
 			    peaks,
 			    fft,
@@ -107,9 +106,12 @@
 			    cameraViewAngle,
 
 			    sphere,
+			    PS_centers = [],
 
 			    cubes,
 			    numCubes,
+
+				particles_systems = [],
 
 			    audio_path = "audio/",
 			    audio_list = ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default //
@@ -131,11 +133,8 @@
 				// Load the default songs in the playlist
 				createDefaultPlaylist(audio_path, audio_list);
 
-
 				// Get the DOM element where to display
 				display = document.getElementById("animate"); 
-
-				console.log("display = " + display);
 
 				// Set up the scene dimensions
 				sceneHeight = window.innerHeight;
@@ -155,7 +154,6 @@
 												cameraNear, 
 												cameraFar
 											);
-
 				// Create the scene
 				scene 	  = new THREE.Scene();
 
@@ -163,32 +161,43 @@
 				//scene.background = new THREE.Color( '#FCFCFC' );
 
 				// add some fog in the scene (black fog)
-				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075);
+				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
 
 				// Set the Camera position (initial)
 				camera.position.z = 560;		// move backward
 
 				// START the (WebGL) renderer
-				renderer.setSize(sceneWidth, sceneHeight);
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( sceneWidth, sceneHeight );
 
 				// Append the renderer DOM element on 'display'
-				display.appendChild(renderer.domElement);
-				
+				display.appendChild( renderer.domElement );
+
+
+				//#########################//
+				//#### 	   STATS.js    ####// 
+				//#########################//				
+					// set up the Stats.js for statistic display 
+					// and add them to the DOM
+					stats = new Stats();
+					stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+					stats.dom.style.top 	= '10px';
+					stats.dom.style.left 	= '10px';
+					document.body.appendChild( stats.dom );
+
+
+
 				// Create the (main) sphere
 				createSphere();
 
-				// set up the Stats.js for statistic display and add them to the DOM
-				stats = new Stats();
-				stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-				stats.dom.style.top 	= '10px';
-				stats.dom.style.left 	= '10px';
-				document.body.appendChild( stats.dom );
+				// Call the animate() routine
+				animate();
+
+
 
 				//#########################//
 				//#### EVENT LISTENERS ####// 
 				//#########################//
-				if(true)
-				{
 					// Update the scene on window resize dynamically
 					window.addEventListener("resize", function()
 					{
@@ -206,17 +215,17 @@
 
 
 					// computational resources optimization when out of view 
-					document.addEventListener('visibilitychange', function()
-					{
-						if (document.hidden)
-						{
-							// stop rendering  &&  stop audio
-							// ... TODOS ...
-						}else{
-							// resume rendering  &&  audio
-							// ... TODOS ...
-						}
-					});
+					// document.addEventListener('visibilitychange', function()
+						// {
+						// 	if (document.hidden)
+						// 	{
+						// 		// stop rendering  &&  stop audio
+						// 		wavesurfer.pause();
+						// 	}else{
+						// 		// resume rendering  &&  audio
+						// 		wavesurfer.play();
+						// 	}
+						// });
 
 
 					// 'audioprocess' event fires continuously as the audio plays. Also fires on seeking.
@@ -230,10 +239,7 @@
 
 
 
-					// Call the loop() routine
-					loop();
-				}
-				
+
 
 				function createSphere() 
 				{
@@ -248,16 +254,15 @@
 						cubeHalfSize 	= cubeSize / 2,
 
 						particleGeometry,
-						particles,
-						numParticles	= 4000,
-						spaceRangePS	= 1000;
+						numParticles	= 1250,  		//  x 5  (final number)(different properties)
+						spaceRangePS	= 900;
 
 					//#########################//
 					//###### MAIN SPHERE ######//
 					//#########################//
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
-									new THREE.MeshNormalMaterial()  	// remove it later 
+									new THREE.MeshNormalMaterial({flatShading: true})  	// remove it later 
 										    							// we don't want to see it
 								 );
 
@@ -302,6 +307,11 @@
 				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.a ] );
 				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.b ] );
 				            faceCentroid.add( sphere.geometry.vertices[ sphereFace.c ] );
+				            
+				            faceCentroid.x =  faceCentroid.x < 0  ?  faceCentroid.x - 5  :  faceCentroid.x + 5;
+							faceCentroid.y =  faceCentroid.y < 0  ?  faceCentroid.y - 5  :  faceCentroid.y + 5;
+							faceCentroid.z =  faceCentroid.z < 0  ?  faceCentroid.z - 5  :  faceCentroid.z + 5;
+				            
 				            faceCentroid.divideScalar( 3 );
 
 						cube.position.x = faceCentroid.x;
@@ -332,32 +342,40 @@
 					//#### PARTICLE SYSTEM ####//
 					//#########################//
 
-					var v,
+					var particles,
+						v,
 						color,
 						size, 
 						materials 				  = [ ],
-						particlesParamsCollection = [ 	[0xfcfcfc, 1.75], 
-														[0xcccccc, 1.50],
-														[0xaaaaaa, 1.25],
-														[0x888888, 0.75],
-														[0x666666, 0.50]  ]; // [hex color, size]
+						particlesParamsCollection = [ 	[0xfcfcfc, 3.15], 
+														[0xcccccc, 2.40],
+														[0xaaaaaa, 2.25],
+														[0x888888, 1.60],
+														[0x666666, 1.05]  ]; // [hex color, size]
 
 					// New geometry for the particles
 					particleGeometry = new THREE.Geometry();
 
 					// Create and add the particles' vectors to the geometry
+					var rand_x, rand_y, rand_z, no_particle_space = camera.position.z;
 					for (var i=0; i < numParticles; i++) 
 					{
-						v = new THREE.Vector3(	Math.random() * 2*spaceRangePS - spaceRangePS,
-												Math.random() * 2*spaceRangePS - spaceRangePS,
-												Math.random() * 2*spaceRangePS - spaceRangePS
+						rand_x = Math.random() * 2*spaceRangePS - spaceRangePS,
+						rand_y = Math.random() * 2*spaceRangePS - spaceRangePS,
+						rand_z = Math.random() * 2*spaceRangePS - spaceRangePS,
+						
+						v = new THREE.Vector3(	rand_x,
+												rand_y,
+												(rand_z < 0)  ?  rand_z - no_particle_space  :  rand_z + no_particle_space
 											);  // (random points around 0 in spaceRangePS)
+
 						particleGeometry.vertices.push(v);
 					};
 
 					// create ONE PARTICLE SYSTEM for each [size, color] 
 					for (var i=0, len=particlesParamsCollection.length; i < len; i++)
 					{
+
 						color 	= particlesParamsCollection[i][0];
 						size 	= particlesParamsCollection[i][1];
 						
@@ -369,6 +387,8 @@
 						particles.rotation.x = Math.random() * 5;
 						particles.rotation.y = Math.random() * 5;
 						particles.rotation.z = Math.random() * 5;
+
+						particles_systems.push(particles);
 
 						scene.add(particles);
 					};
@@ -402,42 +422,6 @@
 
 
 
-				function loop() {
-					// START STATS.js monitoring
-					stats.begin();
-
-					var cube;
-					for (var i=0; i < numCubes; i++)
-					{
-						cube = cubes[i];
-
-						// Scale the cube high as the i-th peaks amplitude (demo 1)
-						// cube.scale.z = cube.scaleValue + ( (peaks[i])  ?  1 + (3 * (fft.spectrum[i] / peaks[i]))  :  0);
-					};
-
-					// Sphere rotation (all the hierarchical structure of the sphere will rotate)
-					sphere.rotation.x += 0.01;
-					sphere.rotation.y += 0.01;
-					sphere.rotation.z -= 0.0085;
-
-					// Particle system rotation
-					// ...TODO...
-
-					// Render the scene
-					renderer.render(scene, camera);
-
-					// END STATS.js monitoring
-					stats.end();
-
-
-					// new Animation Frame Request
-					window.requestAnimationFrame(loop);
-				
-				};  // END loop()
-
-
-
-
 				// Run when audio data is available (after fft updates)
 				function onAudioAvailable()
 				{
@@ -461,6 +445,57 @@
 				}; // --- END onAudioAvailable() --- //
 
 			}; // --- END init() --- //
+
+
+
+			function animate()
+			{
+				// New Animation Frame Request
+				window.requestAnimationFrame(animate);
+
+				
+				// Call the main renderer
+				render();
+
+
+				// START STATS.js monitoring
+				stats.update();
+
+			};  // --- END animate() --- //
+
+
+			function render()
+			{
+				var time = Date.now() * 0.001;
+				//console.log("DEBUG:\ntime = " + time);
+
+				var cube;
+				for (var i=0; i < numCubes; i++)
+				{
+					cube = cubes[i];
+
+					// Scale the cube high as the i-th peaks amplitude (demo 1)
+					// cube.scale.z = cube.scaleValue + ( (peaks[i])  ?  1 + (3 * (fft.spectrum[i] / peaks[i]))  :  0);
+				};
+
+				// Sphere rotation (all the hierarchical structure of the sphere will rotate)
+				sphere.rotation.x     = 1.7 * Math.sin(0.45 * time) + 1.72;
+				sphere.rotation.y     = 3.6 * Math.sin(0.35 * time) + 2.31;
+				sphere.rotation.z     = 1.5 * Math.cos(0.15 * time) + 1.57;
+
+
+				// Particle systems' rotation
+				for (var i = particles_systems.length - 1; i >= 0; i--) {
+					particles_systems[i].rotation.x  = 1.07 * Math.cos(0.235 * time) + 0.42;
+					particles_systems[i].rotation.y  = 1.05 * Math.cos(0.245 * time) + 0.31;
+					particles_systems[i].rotation.z  = 1.03 * Math.sin(0.215 * time) + 0.27; 
+				}
+
+				// Render the scene
+				renderer.render(scene, camera);
+			
+			} 	// --- END render() --- //
+
 		</script>
 
 
