@@ -343,16 +343,19 @@
 					var v,
 						color,
 						size, 
-						
 						particles,
 						particleGeometry,
-						numParticles			  = 1500,  					 //  x 5  (final number)(different properties)
-						materials 				  = [ ],
-						particlesParamsCollection = [ 	[0xfcfcfc, 3.15], 
-														[0xcccccc, 2.40],
-														[0xaaaaaa, 2.25],
-														[0x888888, 1.60],
-														[0x666666, 1.05]  ]; // [hex color, size]
+						numParticles			  = 1000,  					//  x 5  (final number)(different properties)
+						materials 				  = [],
+						particlesParamsCollection = [// [hex color, size] 	//	
+														[0x1e4972, 3.45],	// blue
+														[0x3CB371, 3.15],	// green
+														[0xA31621, 3.05],	// red
+
+														[0x1e4972, 2.55],	// blue
+														[0x3CB371, 2.25],	// green
+														[0xA31621, 2.05]	// red
+													];
 
 					// New geometry for the particles
 					particleGeometry = new THREE.Geometry();
@@ -366,7 +369,7 @@
 							rand_x = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);
 							rand_y = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);
 							rand_z = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);														
-						}	
+						} 	// rarely is doing more than 1-2 cycles here 
 						while( (Math.abs(rand_x) < no_particle_space  &&  Math.abs(rand_y) < no_particle_space  &&  Math.abs(rand_z) < no_particle_space) );
 
 						v = new THREE.Vector3(	rand_x, //(rand_x < 0)  ?  rand_x - no_particle_space  :  rand_x + no_particle_space,
@@ -384,14 +387,14 @@
 						color 	= particlesParamsCollection[i][0];
 						size 	= particlesParamsCollection[i][1];
 						
-						materials[i] = new THREE.PointsMaterial( {size : size} );
+						materials[i] = new THREE.PointsMaterial( {size : size,  sizeAttenuation : true} );
 						materials[i].color.setHex(color);
 
 						particles 	 = new THREE.Points( particleGeometry, materials[i] );
 
-						particles.rotation.x = Math.random() * 5;
-						particles.rotation.y = Math.random() * 5;
-						particles.rotation.z = Math.random() * 5;
+						particles.rotation.x  = randomOutOfTwo(-1, 1) * Math.random() * 1000 + (i+1);
+						particles.rotation.y  = randomOutOfTwo(-1, 1) * Math.random() * 1000 + (i+1);
+						particles.rotation.z  = randomOutOfTwo(-1, 1) * Math.random() * 1000 + (i+1);
 
 						particles_systems.push(particles);
 
@@ -503,9 +506,9 @@
 
 				// Particle systems' rotation
 				for (var i = particles_systems.length - 1; i >= 0; i--) {
-					particles_systems[i].rotation.x  = 1.07 * Math.cos(0.235 * time) + 0.42;
-					particles_systems[i].rotation.y  = 1.05 * Math.cos(0.245 * time) + 0.31;
-					particles_systems[i].rotation.z  = 1.03 * Math.sin(0.215 * time) + 0.27; 
+					particles_systems[i].rotation.x  = 0.57 * Math.cos(0.23 * time) + 0.11 * (i+1);
+					particles_systems[i].rotation.y  = 0.55 * Math.cos(0.24 * time) + 0.12 * (i+1);
+					particles_systems[i].rotation.z  = 0.53 * Math.sin(0.21 * time) + 0.13 * (i+1); 
 				}
 
 				// Render the scene
