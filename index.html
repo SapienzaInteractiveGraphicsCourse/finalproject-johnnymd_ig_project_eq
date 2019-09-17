@@ -253,9 +253,7 @@
 						cubeSize 		= 10,
 						cubeHalfSize 	= cubeSize / 2,
 
-						particleGeometry,
-						numParticles	= 1250,  		//  x 5  (final number)(different properties)
-						spaceRangePS	= 900;
+						spaceRangePS	= 1000;
 
 					//#########################//
 					//###### MAIN SPHERE ######//
@@ -342,10 +340,13 @@
 					//#### PARTICLE SYSTEM ####//
 					//#########################//
 
-					var particles,
-						v,
+					var v,
 						color,
 						size, 
+						
+						particles,
+						particleGeometry,
+						numParticles			  = 1500,  					 //  x 5  (final number)(different properties)
 						materials 				  = [ ],
 						particlesParamsCollection = [ 	[0xfcfcfc, 3.15], 
 														[0xcccccc, 2.40],
@@ -357,16 +358,20 @@
 					particleGeometry = new THREE.Geometry();
 
 					// Create and add the particles' vectors to the geometry
-					var rand_x, rand_y, rand_z, no_particle_space = camera.position.z;
+					var rand_x, rand_y, rand_z, no_particle_space = 1.0 * camera.position.z;
 					for (var i=0; i < numParticles; i++) 
 					{
-						rand_x = Math.random() * 2*spaceRangePS - spaceRangePS,
-						rand_y = Math.random() * 2*spaceRangePS - spaceRangePS,
-						rand_z = Math.random() * 2*spaceRangePS - spaceRangePS,
-						
-						v = new THREE.Vector3(	rand_x,
-												rand_y,
-												(rand_z < 0)  ?  rand_z - no_particle_space  :  rand_z + no_particle_space
+						do {
+							// at least one out of three needs to be greater then  | no_particle_space |
+							rand_x = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);
+							rand_y = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);
+							rand_z = randomRangeNumber( randomOutOfTwo(0, no_particle_space),  spaceRangePS ) * randomOutOfTwo(-1, 1);														
+						}	
+						while( (Math.abs(rand_x) < no_particle_space  &&  Math.abs(rand_y) < no_particle_space  &&  Math.abs(rand_z) < no_particle_space) );
+
+						v = new THREE.Vector3(	rand_x, //(rand_x < 0)  ?  rand_x - no_particle_space  :  rand_x + no_particle_space,
+												rand_y, //(rand_y < 0)  ?  rand_y - no_particle_space  :  rand_y + no_particle_space,
+												rand_z  //(rand_z < 0)  ?  rand_z - no_particle_space  :  rand_z + no_particle_space
 											);  // (random points around 0 in spaceRangePS)
 
 						particleGeometry.vertices.push(v);
@@ -443,6 +448,18 @@
 						}
 					}
 				}; // --- END onAudioAvailable() --- //
+
+
+
+				// Returns a random number between min (inclusive) and max (exclusive)
+				function randomRangeNumber(min, max) {
+				    return Math.random() * (max - min) + min;
+				}
+
+				// Returns on of the two arguments randomly
+				function randomOutOfTwo(first, second) {
+					return (Math.random() < 0.5)  ?  first  :  second;
+				}
 
 			}; // --- END init() --- //
 
