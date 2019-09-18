@@ -82,20 +82,14 @@
 		<!-- MAIN visualization SCRIPT -->
 		<script>
 			// set variables
-			var analyser,
-			    numChannels,
 
-			    peaks,
-			    fft,			// Frequency Domain Data (from Fast Fourier Transform);
-			    fftSize = 64, 	// powers of 2 (default --> 2048) (lower --> faster);
-			    tdd,			// Time Domain Data;
+			var display,
 
-			    display,
-
+				clock 	= new THREE.Clock(),
+			    
 			    stats,
 		
 			    renderer,
-				clock 	= new THREE.Clock(),
 
 			    scene,
 			    sceneHeight,
@@ -108,15 +102,25 @@
 			    cameraViewAngle,
 
 			    sphere,
-			    PS_centers = [],
+			    radius 		= 200,
+				rings 		= 124,
+				segments	= 8,
 
 			    cubes,
 			    numCubes,
 
 				particles_systems = [],
+				
+				analyser,
+			    numChannels,
+			    tdd,				// Time Domain Data;
+			    fft,				// Frequency Domain Data (from Fast Fourier Transform);
+			    peaks,
+			    fftSize = 2*segments, 	// powers of 2 (default --> 2048) (lower --> faster);
 
 			    audio_path = "audio/",
-			    audio_list = ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default songs list to be loaded //
+			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3"]; 
+			    			// ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default songs list to be loaded //
 
 			    
 
@@ -148,7 +152,7 @@
 				cameraAspect	= sceneWidth / sceneHeight;
 				cameraViewAngle	= 65;
 
-				// Create the renderer and camera (the WebGL one)
+				// Create the renderer and camera (the WebGL one)s
 				renderer 	= new THREE.WebGLRenderer( { antialias: true } );
 				camera 		= new THREE.PerspectiveCamera(
 												cameraViewAngle, 
@@ -166,7 +170,7 @@
 				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
 
 				// Set the Camera position (initial)
-				camera.position.z = 560;		// move backward
+				camera.position.z = 1080;		// move backward
 
 				// START the (WebGL) renderer
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -247,11 +251,7 @@
 
 				function createSphere() 
 				{
-					var radius 		= 100,
-						segments	= 32,
-						rings 		= 16,
-
-						sphereFaces,
+					var sphereFaces,
 						sphereMaterial,
 
 						cubeSize 		= 10,
@@ -270,6 +270,7 @@
 
 					// Add the sphere to the scene
 					scene.add(sphere);
+
 
 
 					//###################//
@@ -321,7 +322,7 @@
 						cube.position.z = faceCentroid.z;
 
 						// Scale the cube so it's smaller near the poles of the sphere (visual effect)
-						scaleValue 		= Math.abs(cube.position.y) / 100;
+						scaleValue 		= Math.abs(cube.position.y) / (radius);
 						cube.scale.x 	= 1 - (scaleValue * 0.7);
 						cube.scale.y 	= 1 - (scaleValue * 0.7);
 						cube.scale.z 	= 1 - (scaleValue * 0.7);
@@ -429,9 +430,9 @@
 				analyser.fftSize = fftSize * numChannels;
 
 				// Tune up the power value in the scaling range for the FFT analysis data
-				analyser.minDecibels = -90;  // Where 0dB is the loudest possible sound, (-10 dB is a 10th of that). 
-				analyser.maxDecibels = -10;  // The default value is (-100dB for min)  and  (-30dB for max).		
-				analyser.smoothingTimeConstant = 0.85;
+				analyser.minDecibels = -100;  // Where 0dB is the loudest possible10 sound, (-10 dB is a 10th of that). 
+				analyser.maxDecibels = -30;  // The default value is (-100dB for min)  and  (-30dB for max).		
+				analyser.smoothingTimeConstant = 0.35;
 
 				// Initialize the buffers for the Frequency and Time Domain Data:
 				//     (it will be updated on 'onaudioprocess' event firing)
@@ -442,17 +443,17 @@
 				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing) 
 				peaks 		= new Float32Array(fftSize);
 
-
+				console.log("DEBUG:\n\tfft-length \t\t= " + fft.length + "\n\tpeaks-length \t= " + peaks.length + "\n\ttdd-length \t\t= " + tdd.length);
 
 
 				// Run when audio data is available (after fft updates)
 				function onAudioAvailable()
 				{
 					// Compute and get the peaks' values of the audio signal
-					for (var i=0; i < fftSize; i++)
+					for (var i=0,  fft_size = fft.length; i < fft_size; i++)
 					{
 						// Equalizer: attenuate low frequents and boost the high ones
-						fft[i] *= -1 * Math.log((fftSize / 2 - i) * (0.5 / fftSize / 2)) * fftSize;
+						fft[i] *= -1 * Math.log((fftSize / 2 - 1.0*i) * (0.5 / fftSize / 2)) * fftSize;
 
 						if (peaks[i] < fft[i])
 						{
@@ -462,7 +463,7 @@
 						else 
 						{
 							// decreasing the peak slowly till a new peaks is found
-							peaks[i] *= 0.987;
+							peaks[i] *= 0.65;
 						}
 					}
 				}; // --- END onAudioAvailable() --- //
@@ -492,7 +493,7 @@
 				// New Animation Frame Request
 				window.requestAnimationFrame(animate);
 
-				
+
 				// Call the main renderer
 				render();
 
@@ -508,21 +509,26 @@
 				var time = Date.now() * 0.001;
 				//console.log("DEBUG:\ntime = " + time);
 
-				var cube;
-				for (var i=0; i < numCubes; i++)
+				if (analyser)
 				{
-					cube = cubes[i];
+					var cube;
+					for (var i=0, fft_size = peaks.length; i < numCubes; i++)
+					{
+						cube 		= cubes[i];
+						fft_index 	= i % fft_size;
 
-					// Scale the cube high as the i-th peaks amplitude (demo 1)
-					// cube.scale.z = cube.scaleValue + ( (peaks[i])  ?  1 + (3 * (fft.spectrum[i] / peaks[i]))  :  0);
-				};
+						// Scale the cube high as the i-th peaks amplitude (demo 1)
+						cube.scale.z = cube.scaleValue + ( (peaks[fft_index])  ?  1 + (3 * (fft[fft_index] / peaks[fft_index]))  :  0);
+					}
+				}
 
 				// Sphere rotation (all the hierarchical structure of the sphere will rotate)
-				sphere.rotation.x     = 1.7 * Math.sin(0.45 * time) + 1.72;
-				sphere.rotation.y     = 3.6 * Math.sin(0.35 * time) + 2.31;
-				sphere.rotation.z     = 1.5 * Math.cos(0.15 * time) + 1.57;
+				sphere.rotation.x     = 0.7 * Math.sin(0.45 * time) + 1.72;
+				sphere.rotation.y     = 0.6 * Math.sin(0.35 * time) + 2.31;
+				sphere.rotation.z     = 0.5 * Math.cos(0.15 * time) + 1.57;
 
-				// Sphere opacity 
+				// Sphere opacity fading in/out periodically
+				//	('abs' -> avoid the full opacity fading)
 				sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
 
 
