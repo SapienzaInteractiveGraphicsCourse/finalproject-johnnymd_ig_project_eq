@@ -102,8 +102,8 @@
 			    cameraViewAngle,
 
 			    sphere,
-			    radius 		= 200,
-				rings 		= 124,
+			    radius 		= 100,
+				rings 		= 64,
 				segments	= 8,
 
 			    cubes,
@@ -116,7 +116,8 @@
 			    tdd,				// Time Domain Data;
 			    fft,				// Frequency Domain Data (from Fast Fourier Transform);
 			    peaks,
-			    fftSize = 2*segments, 	// powers of 2 (default --> 2048) (lower --> faster);
+			    fftSize = 2*segments*rings*2, 	// Powers of 2 (default --> 2048) (lower --> faster) 
+			    								// We use one array's spot for each cube on the sphere;
 
 			    audio_path = "audio/",
 			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3"]; 
@@ -153,13 +154,21 @@
 				cameraViewAngle	= 65;
 
 				// Create the renderer and camera (the WebGL one)s
-				renderer 	= new THREE.WebGLRenderer( { antialias: true } );
+				renderer 	= new THREE.WebGLRenderer( { 
+					antialias      	: true, 	// default false
+					alpha 			: false,	// default false
+					depth 			: true, 	// default true
+					powerPreference	: 'high-performance',
+					physicallyCorrectLights : true
+				} );
+
 				camera 		= new THREE.PerspectiveCamera(
 												cameraViewAngle, 
 												cameraAspect, 
 												cameraNear, 
 												cameraFar
 											);
+
 				// Create the scene
 				scene 	  = new THREE.Scene();
 
@@ -170,7 +179,7 @@
 				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
 
 				// Set the Camera position (initial)
-				camera.position.z = 1080;		// move backward
+				camera.position.z = 540;		// move backward
 
 				// START the (WebGL) renderer
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -264,7 +273,12 @@
 					//#########################//
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
-									new THREE.MeshNormalMaterial({flatShading: true,  transparent: true,  opacity: 0.35})
+									new THREE.MeshNormalMaterial({
+											wireframe   : true,
+											flatShading	: true, 
+											transparent	: true,  
+											opacity    	: 0.15
+										})
 										    							// we don't want to see it
 								 );
 
@@ -291,10 +305,15 @@
 						sphereFace = sphereFaces[i];
 
 						// Create the i-th cube
-						cube = new THREE.Mesh(
+						cube = 	new THREE.Mesh(
 									new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize),
-									new THREE.MeshNormalMaterial()
-									);
+									new THREE.MeshNormalMaterial({
+											wireframe   : false,
+											flatShading	: true,  
+											transparent	: true,  
+											opacity    	: 0.68
+									})
+								);
 
 						// Get the cube vertexes (corners)
 						vertices = cube.geometry.vertices;
@@ -430,9 +449,9 @@
 				analyser.fftSize = fftSize * numChannels;
 
 				// Tune up the power value in the scaling range for the FFT analysis data
-				analyser.minDecibels = -100;  // Where 0dB is the loudest possible10 sound, (-10 dB is a 10th of that). 
-				analyser.maxDecibels = -30;  // The default value is (-100dB for min)  and  (-30dB for max).		
-				analyser.smoothingTimeConstant = 0.35;
+				// analyser.minDecibels = -100;  // Where 0dB is the loudest possible10 sound, (-10 dB is a 10th of that). 
+				// analyser.maxDecibels = -30;  // The default value is (-100dB for min)  and  (-30dB for max).		
+				analyser.smoothingTimeConstant = 0.65;
 
 				// Initialize the buffers for the Frequency and Time Domain Data:
 				//     (it will be updated on 'onaudioprocess' event firing)
@@ -453,9 +472,9 @@
 					for (var i=0,  fft_size = fft.length; i < fft_size; i++)
 					{
 						// Equalizer: attenuate low frequents and boost the high ones
-						fft[i] *= -1 * Math.log((fftSize / 2 - 1.0*i) * (0.5 / fftSize / 2)) * fftSize;
+						fft[i] *= -1 * Math.log((fft_size / 2 - 1.0*i) * (0.5 / fft_size / 2)) * fft_size;
 
-						if (peaks[i] < fft[i])
+						if (peaks[i] < fft[i] + 50) // to much vibration // TODOS //
 						{
 							// Assign a new peak value
 							peaks[i] = fft[i];
@@ -463,9 +482,10 @@
 						else 
 						{
 							// decreasing the peak slowly till a new peaks is found
-							peaks[i] *= 0.65;
+							peaks[i] *= 0.986;
 						}
 					}
+					console.log(peaks);
 				}; // --- END onAudioAvailable() --- //
 
 
@@ -529,7 +549,7 @@
 
 				// Sphere opacity fading in/out periodically
 				//	('abs' -> avoid the full opacity fading)
-				sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
+				// sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
 
 
 				// Particle systems' rotation
