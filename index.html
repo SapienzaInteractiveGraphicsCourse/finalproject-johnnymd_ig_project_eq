@@ -86,15 +86,17 @@
 			    numChannels,
 
 			    peaks,
-			    fft,
-			    fftSize = 32, 	// powers of 2 (default --> 2048) (lower --> faster)
+			    fft,			// Frequency Domain Data (from Fast Fourier Transform);
+			    fftSize = 64, 	// powers of 2 (default --> 2048) (lower --> faster);
+			    tdd,			// Time Domain Data;
 
 			    display,
 
 			    stats,
 		
 			    renderer,
-		
+				clock 	= new THREE.Clock(),
+
 			    scene,
 			    sceneHeight,
 			    sceneWidth,
@@ -230,11 +232,13 @@
 
 					// 'audioprocess' event fires continuously as the audio plays. Also fires on seeking.
 					wavesurfer.on('audioprocess', function(e) {
-						// update the 'fft' array
-						analyser.getByteFrequencyData(fft);
+						// update the 'fft' and 'tdd' arrays
+						analyser.getByteFrequencyData(	fft  );
+						analyser.getByteTimeDomainData(	tdd );
 
 						// update the peaks array
-						onAudioAvailable();		// console.log("DEBUG:\nfft \t= " + fft + "\npeaks \t= " + peaks);
+						onAudioAvailable();		// console.log("\nDEBUG:\n\nfft \t= " + fft + "\n\npeaks \t= " + peaks + "\n\ntdd \t= " + tdd + "\n\n");
+
 					});
 
 
@@ -260,7 +264,7 @@
 					//#########################//
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
-									new THREE.MeshNormalMaterial({flatShading: true})  	// remove it later 
+									new THREE.MeshNormalMaterial({flatShading: true,  transparent: true,  opacity: 0.35})
 										    							// we don't want to see it
 								 );
 
@@ -424,10 +428,20 @@
 				//         (fft scale to one channel size)
 				analyser.fftSize = fftSize * numChannels;
 
-				// Get the frequency data (for the 1st time)
-				//(it will be updated on 'onaudioprocess' event firing)
+				// Tune up the power value in the scaling range for the FFT analysis data
+				analyser.minDecibels = -90;  // Where 0dB is the loudest possible sound, (-10 dB is a 10th of that). 
+				analyser.maxDecibels = -10;  // The default value is (-100dB for min)  and  (-30dB for max).		
+				analyser.smoothingTimeConstant = 0.85;
+
+				// Initialize the buffers for the Frequency and Time Domain Data:
+				//     (it will be updated on 'onaudioprocess' event firing)
 				fft 		= new Uint8Array(analyser.frequencyBinCount);
+				tdd 		= new Uint8Array(analyser.fftSize);		// this array should be the same length as the fftSize of the analyser;
+
+				// Array that will track smoothly the frequencies variations in time 
+				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing) 
 				peaks 		= new Float32Array(fftSize);
+
 
 
 
@@ -454,6 +468,10 @@
 				}; // --- END onAudioAvailable() --- //
 
 
+
+				//###############################//
+				//####    Helper Functions   ####//
+				//###############################//
 
 				// Returns a random number between min (inclusive) and max (exclusive)
 				function randomRangeNumber(min, max) {
@@ -503,6 +521,9 @@
 				sphere.rotation.x     = 1.7 * Math.sin(0.45 * time) + 1.72;
 				sphere.rotation.y     = 3.6 * Math.sin(0.35 * time) + 2.31;
 				sphere.rotation.z     = 1.5 * Math.cos(0.15 * time) + 1.57;
+
+				// Sphere opacity 
+				sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
 
 
 				// Particle systems' rotation
