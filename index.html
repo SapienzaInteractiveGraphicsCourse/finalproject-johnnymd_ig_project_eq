@@ -263,7 +263,7 @@
 					var sphereFaces,
 						sphereMaterial,
 
-						cubeSize 		= 10,
+						cubeSize 		= 8,
 						cubeHalfSize 	= cubeSize / 2,
 
 						spaceRangePS	= 1000;
@@ -306,7 +306,7 @@
 
 						// Create the i-th cube
 						cube = 	new THREE.Mesh(
-									new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize),
+									new THREE.BoxGeometry(1.6*cubeSize, 0.5*cubeSize, 0.85*cubeSize),
 									new THREE.MeshNormalMaterial({
 											wireframe   : false,
 											flatShading	: true,  
@@ -451,7 +451,7 @@
 				// Tune up the power value in the scaling range for the FFT analysis data
 				// analyser.minDecibels = -100;  // Where 0dB is the loudest possible10 sound, (-10 dB is a 10th of that). 
 				// analyser.maxDecibels = -30;  // The default value is (-100dB for min)  and  (-30dB for max).		
-				analyser.smoothingTimeConstant = 0.65;
+				analyser.smoothingTimeConstant = 0.0; // (0 meaning no time averaging). The default value is 0.8.
 
 				// Initialize the buffers for the Frequency and Time Domain Data:
 				//     (it will be updated on 'onaudioprocess' event firing)
@@ -472,9 +472,9 @@
 					for (var i=0,  fft_size = fft.length; i < fft_size; i++)
 					{
 						// Equalizer: attenuate low frequents and boost the high ones
-						fft[i] *= -1 * Math.log((fft_size / 2 - 1.0*i) * (0.5 / fft_size / 2)) * fft_size;
+						//fft[i] *= -1 * Math.log((fft_size / 2 - 1.0*i) * (0.5 / fft_size / 2)) * fft_size;
 
-						if (peaks[i] < fft[i] + 50) // to much vibration // TODOS //
+						if (peaks[i] < fft[i] + 10) // to much vibration // TODOS //
 						{
 							// Assign a new peak value
 							peaks[i] = fft[i];
@@ -482,7 +482,7 @@
 						else 
 						{
 							// decreasing the peak slowly till a new peaks is found
-							peaks[i] *= 0.986;
+							peaks[i] *= 0.96;
 						}
 					}
 					console.log(peaks);
