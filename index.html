@@ -100,6 +100,7 @@
 			    cameraNear,
 			    cameraAspect,
 			    cameraViewAngle,
+			    cameraRotationSpeed  = 0.023,
 
 			    sphere,
 			    radius 		= 100,
@@ -116,8 +117,9 @@
 			    tdd,				// Time Domain Data;
 			    fft,				// Frequency Domain Data (from Fast Fourier Transform);
 			    peaks,
-			    fftSize = 2*segments*rings*2, 	// Powers of 2 (default --> 2048) (lower --> faster) 
-			    								// We use one array's spot for each cube on the sphere;
+			    fftSize  = 2*segments * 2*rings, 	// Powers of 2 (default --> 2048) (lower --> faster) 
+			    									// We use one array's spot for each cube on the sphere;
+			    smoothingTimeConstantFFT  = 0.0,
 
 			    audio_path = "audio/",
 			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3"]; 
@@ -169,15 +171,6 @@
 												cameraFar
 											);
 
-				// Create the scene
-				scene 	  = new THREE.Scene();
-
-				// Set the scene's background color
-				//scene.background = new THREE.Color( '#FCFCFC' );
-
-				// add some fog in the scene (black fog)
-				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
-
 				// Set the Camera position (initial)
 				camera.position.z = 540;		// move backward
 
@@ -187,6 +180,16 @@
 
 				// Append the renderer DOM element on 'display'
 				display.appendChild( renderer.domElement );
+
+
+				// Create the scene
+				scene 	  = new THREE.Scene();
+
+				// Set the scene's background color
+				//scene.background = new THREE.Color( '#FCFCFC' );
+
+				// add some fog in the scene (black fog)
+				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
 
 
 				//#########################//
@@ -229,6 +232,10 @@
 					});
 
 
+					// Keyboard Controls event listener (on key down) 
+					document.addEventListener("keydown", setupKeyControls);
+
+
 					// computational resources optimization when out of view 
 					// document.addEventListener('visibilitychange', function()
 						// {
@@ -264,6 +271,10 @@
 						sphereMaterial,
 
 						cubeSize 		= 8,
+						  cube_L_coef     = 1.6,
+						  cube_l_coef 	  = 0.5,
+						  cube_h_coef     = 0.85,
+
 						cubeHalfSize 	= cubeSize / 2,
 
 						spaceRangePS	= 1000;
@@ -277,7 +288,7 @@
 											wireframe   : true,
 											flatShading	: true, 
 											transparent	: true,  
-											opacity    	: 0.15
+											opacity    	: 0.023
 										})
 										    							// we don't want to see it
 								 );
@@ -306,7 +317,7 @@
 
 						// Create the i-th cube
 						cube = 	new THREE.Mesh(
-									new THREE.BoxGeometry(1.6*cubeSize, 0.5*cubeSize, 0.85*cubeSize),
+									new THREE.BoxGeometry(cube_L_coef * cubeSize, cube_l_coef * cubeSize, cube_h_coef * cubeSize),
 									new THREE.MeshNormalMaterial({
 											wireframe   : false,
 											flatShading	: true,  
@@ -449,9 +460,9 @@
 				analyser.fftSize = fftSize * numChannels;
 
 				// Tune up the power value in the scaling range for the FFT analysis data
-				// analyser.minDecibels = -100;  // Where 0dB is the loudest possible10 sound, (-10 dB is a 10th of that). 
-				// analyser.maxDecibels = -30;  // The default value is (-100dB for min)  and  (-30dB for max).		
-				analyser.smoothingTimeConstant = 0.0; // (0 meaning no time averaging). The default value is 0.8.
+					// analyser.minDecibels = -100;  // Where 0dB is the loudest possible sound, (-10 dB is a 10th of that). 
+					// analyser.maxDecibels = -30;   // The default value is (-100dB for min)  and  (-30dB for max).		
+				analyser.smoothingTimeConstant = smoothingTimeConstantFFT; // (0 meaning no time averaging). The default value is 0.8.
 
 				// Initialize the buffers for the Frequency and Time Domain Data:
 				//     (it will be updated on 'onaudioprocess' event firing)
@@ -485,8 +496,52 @@
 							peaks[i] *= 0.96;
 						}
 					}
-					console.log(peaks);
 				}; // --- END onAudioAvailable() --- //
+
+
+				// 'onKeyDown' events function 
+			    function setupKeyControls(e) {
+			    	var x = camera.position.x,
+					    y = camera.position.y,
+					    z = camera.position.z;
+
+			    	switch (e.keyCode)
+			        {
+			          		case 37:  	//  <--  (Left)
+			          			camera.position.x = x * Math.cos(cameraRotationSpeed) + z * Math.sin(cameraRotationSpeed);
+    							camera.position.z = z * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
+			          			break;
+			          
+			          		case 38: 	//   ^   (Up)
+			          			camera.position.y = y * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
+								camera.position.x = x * Math.cos(cameraRotationSpeed) - y * Math.sin(cameraRotationSpeed);
+						        break;
+			          
+			          		case 39:   	//  -->  (Right)
+			          			camera.position.x = x * Math.cos(cameraRotationSpeed) - z * Math.sin(cameraRotationSpeed);
+								camera.position.z = z * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
+								break;
+			          
+			          		case 40: 	// 	 v   (Down)
+			          			camera.position.y = y * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
+								camera.position.x = x * Math.cos(cameraRotationSpeed) + y * Math.sin(cameraRotationSpeed);
+			        			break;
+
+			        		case 107: 	//   +   (plus)
+			        			cameraRotationSpeed += 0.001;
+			        			break;
+			        		
+			        		case 109: 	//   -   (minus)
+			        			cameraRotationSpeed -= 0.001;
+			        			break;
+			        		//default:
+			        		// 	console.log("DEBUG: pressed key: " + e.keyCode);
+			        		// 	break;
+			        } 	// --- END switch --- //
+					// Update camera and look again at the origin			        
+			        camera.lookAt(scene.position);
+
+			    }; 	// --- END setupKeyControls(e)
 
 
 
@@ -502,6 +557,19 @@
 				// Returns on of the two arguments randomly
 				function randomOutOfTwo(first, second) {
 					return (Math.random() < 0.5)  ?  first  :  second;
+				}
+
+				// Set default parameters
+				function setDefaultParams()
+				{
+					smoothingTimeConstantFFT 	= 0.0;
+
+					numParticles 	= 1400;
+					
+					cubeSize 		= 8;
+					cube_L_coef		= 1.6;
+					cube_l_coef 	= 0.5;
+					cube_h_coef		= 0.85;
 				}
 
 			}; // --- END init() --- //
