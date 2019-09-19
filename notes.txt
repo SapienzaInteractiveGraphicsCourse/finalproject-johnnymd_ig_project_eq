@@ -1,0 +1,10 @@
+Controls:	
+	- Camera orbit movements (arrow key);
+	- Mouse roll in/out (camera zoom);
+	
+	- Audio Volume slider controller (wavesurfer.setVolume(0.5));
+
+	- Cubes' dimensions (coefficients) [p, L, z];
+	- Peaks Update Uperbound coefficient 	{[0 	-   255]};
+	- Peaks Decreasing rate coefficient 	{[0.01 	-  0.99]};
+	- 
