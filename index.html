@@ -107,11 +107,14 @@
 				rings 		= 64,
 				segments	= 8,
 
+				numWaves 	= segments,
+				waves 		= [],
+
 			    cubes,
 			    numCubes,
 
 				particles_systems = [],
-				
+
 				analyser,
 			    numChannels,
 			    tdd,				// Time Domain Data;
@@ -262,9 +265,59 @@
 					});
 
 
+				// Creates and adds a set of lines (splineCurves) to the main sphere
+				//      reproducing the Time Domain Data of the audio ('tdd').
+				function createLines(numWaves)
+				{
+					var nextAngle 	= 0,
+						deltaPhi 	= 2*Math.PI / segments,
+						tdd_size 	= tdd.length,
+						pickRate    = 32,
+						delta_x		= (2*radius + 6) / tdd_size * pickRate;
+
+					for (var j = 0; j < segments; j++)
+					{
+						var splineCurve,
+							linePoints,
+							curvePoints	= [],
+							x_pos		= 0 - radius - 3; 			// sphere centered in (0, 0, 0)	
+
+						
+
+						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
+						{
+							curvePoints.push(new THREE.Vector2( x_pos , 10*Math.random()-5));
+							x_pos += delta_x;				
+						} console.log("curvePoints.length = " + curvePoints.length);
+						
+						splineCurve = new THREE.SplineCurve( curvePoints );
+
+						linePoints 	= splineCurve.getPoints( tdd_size * 10 );
+
+						var waveGeometry = new THREE.BufferGeometry().setFromPoints( linePoints );
+						var waveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+						// Create the final object to add to the scene
+						var wave = new THREE.Line( waveGeometry, waveMaterial );
+
+						// Put it on the correct axis
+						wave.rotateZ( Math.PI / 2 );
+						wave.rotateX(  nextAngle  );
+
+
+						waves.push(wave);
+						//console.log("waves[j].points = " + wave.geometry.vertices;
+
+						sphere.add(wave);
+
+						// Get the next angle
+						nextAngle += deltaPhi;
+					}
+				};
 
 
 
+				// Creates the main sphere //
 				function createSphere() 
 				{
 					var sphereFaces,
@@ -436,7 +489,8 @@
 
 						scene.add(particles);
 					};
-				};
+				}; 	// --- END createSphere() --- //
+
 
 				//#########################//
 				//####    Audio Data   ####//
@@ -572,6 +626,11 @@
 					cube_h_coef		= 0.85;
 				}
 
+
+
+				// Create the lines
+				createLines(numWaves);
+
 			}; // --- END init() --- //
 
 
@@ -597,8 +656,9 @@
 				var time = Date.now() * 0.001;
 				//console.log("DEBUG:\ntime = " + time);
 
-				if (analyser)
+				if (analyser) 	// "analyser" needs to be active here ! //
 				{
+					// Cubes scale's update as 'fft' variates //
 					var cube;
 					for (var i=0, fft_size = peaks.length; i < numCubes; i++)
 					{
@@ -608,6 +668,20 @@
 						// Scale the cube high as the i-th peaks amplitude (demo 1)
 						cube.scale.z = cube.scaleValue + ( (peaks[fft_index])  ?  1 + (3 * (fft[fft_index] / peaks[fft_index]))  :  0);
 					}
+
+
+					// Lines points update as 'tdd' variates //
+					if (waves[0].points)
+					{
+						for (var r = waves.length - 1; r >= 0; r--) {
+							for (var i = waves.points.length - 1; i >= 0; i--) {
+								console.log("waves.points[" + r + "] = " + waves[r].points[i]);
+							}
+
+						}					
+					}
+
+
 				}
 
 				// Sphere rotation (all the hierarchical structure of the sphere will rotate)
@@ -626,6 +700,7 @@
 					particles_systems[i].rotation.y  = 0.55 * Math.cos(0.24 * time) + 0.12 * (i+1);
 					particles_systems[i].rotation.z  = 0.53 * Math.sin(0.21 * time) + 0.13 * (i+1); 
 				}
+
 
 				// Render the scene
 				renderer.render(scene, camera);
