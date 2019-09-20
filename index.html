@@ -16,12 +16,13 @@
 		<link href='style/player-style/styles.css' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="style/player-style/font-awesome-4.3.0/css/font-awesome.min.css">
 
-		<script src="Common/jquery-3.4.0.min.js"></script>
-		<script src="Common/general_purpose_scripts.js"></script>
+		<script src="Common/jquery-3.4.0.min.js">         </script>
+		<script src="Common/general_purpose_scripts.js">  </script>
 
-		<script src="Common/three.min.js"></script>
-		<script src="Common/Stats.js"></script>		<!-- JavaScript Performance Monitor -->
-		
+		<script src="Common/three.min.js">      </script>
+		<script src="Common/OrbitControls.js">  </script>
+		<script src="Common/Stats.js">          </script>		<!-- JavaScript Performance Monitor -->
+
 	</head>
 	
 	<body>
@@ -76,7 +77,7 @@
 		<script src="Common/id3-minimized.js">	  	</script>
 		<script src="Common/wavesurfer.min.js">	  	</script>
 		<script src="Common/player_script.js">	  	</script>
-
+		
 		
 		<!-- MAIN visualization SCRIPT -->
 		<script>
@@ -101,6 +102,8 @@
 			    cameraViewAngle,
 			    cameraRotationSpeed  = 0.023,
 
+			    controls,
+
 			    sphere,
 			    radius 		= 100,
 				rings 		= 64,
@@ -108,9 +111,9 @@
 
 				numWaves 	= segments,
 				waves 		= [],
+				sampleRate 	= 0.04,						// spline curve sample rate for wave lines building
 				wavesCreated	  = false,
 				changeWavesColor  = false,
-				sampleRate 	= 0.04,						// spline curve sample rate for wave lines building
 
 			    cubes,
 			    numCubes,
@@ -124,10 +127,10 @@
 			    peaks,
 			    fftSize  = 2*segments * 2*rings, 	// Powers of 2 (default --> 2048) (lower --> faster) 
 			    									// We use one array's spot for each cube on the sphere;
-			    smoothingTimeConstantFFT  = 0.0,
+			    smoothingTimeConstantFFT  = 0.0,	// a more immediate response to the played audio 
 
 			    audio_path = "audio/",
-			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3"]; 
+			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3"]; 
 			    			// ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default songs list to be loaded //
 
 			    
@@ -160,6 +163,17 @@
 				cameraAspect	= sceneWidth / sceneHeight;
 				cameraViewAngle	= 65;
 
+
+				camera 		= new THREE.PerspectiveCamera(
+												cameraViewAngle, 
+												cameraAspect, 
+												cameraNear, 
+												cameraFar
+											);
+				// Set the Camera position (initial)
+				camera.position.z = 540;		// move backward
+
+				
 				// Create the renderer and camera (the WebGL one)s
 				renderer 	= new THREE.WebGLRenderer( { 
 					antialias      	: true, 	// default false
@@ -169,23 +183,14 @@
 					physicallyCorrectLights : true
 				} );
 
-				camera 		= new THREE.PerspectiveCamera(
-												cameraViewAngle, 
-												cameraAspect, 
-												cameraNear, 
-												cameraFar
-											);
-
-				// Set the Camera position (initial)
-				camera.position.z = 540;		// move backward
-
 				// START the (WebGL) renderer
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( sceneWidth, sceneHeight );
 
+
 				// Append the renderer DOM element on 'display'
 				display.appendChild( renderer.domElement );
-
+				
 
 				// Create the scene
 				scene 	  = new THREE.Scene();
@@ -195,6 +200,25 @@
 
 				// add some fog in the scene (black fog)
 				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
+
+				// Add the camera controls
+				controls = new THREE.OrbitControls (camera, renderer.domElement);
+					controls.target.set( 0, 0, -50 ); // IMPORTANT: new location of focus
+					controls.enableZoom     = true;
+					controls.zoomSpeed 		= 0.85;
+			    	controls.enableDamping  = false;
+					controls.dampingFactor  = 0.25;
+					controls.autoRotate     = false;
+					controls.mouseButtons 	= {
+							LEFT:   THREE.MOUSE.ROTATE,
+							MIDDLE: THREE.MOUSE.DOLLY,
+							RIGHT:  THREE.MOUSE.PAN };
+					controls.touches 		= {
+							ONE: THREE.TOUCH.ROTATE,
+							TWO: THREE.TOUCH.DOLLY_PAN };
+					controls.enabled 		= true;
+
+				controls.update();
 
 
 				//#########################//
@@ -444,7 +468,7 @@
 						size, 
 						particles,
 						particleGeometry,
-						numParticles			  = 1400,  					// x 7  (final number)(different properties)
+						numParticles			  = 1600,  					// x 7  (final number)(different properties)
 						materials 				  = [],
 						particlesParamsCollection = [// [hex color, size] 	//	
 														[0xA31621, 3.05],	// red
@@ -595,7 +619,7 @@
 			        		case 49:    // 	 1   (Num. 1 key)
 			        			changeWavesColor = true;
 			        			break;
-			        			
+
 			        		case 107: 	//   +   (plus)
 			        			cameraRotationSpeed += 0.001;
 			        			break;
@@ -609,6 +633,7 @@
 			        } 	// --- END switch --- //
 					// Update camera and look again at the origin			        
 			        camera.lookAt(scene.position);
+			        controls.update();
 
 			    }; 	// --- END setupKeyControls(e)
 
@@ -623,6 +648,9 @@
 
 			function animate()
 			{
+				// Update the camera controls
+				// controls.update(); 
+
 				// New Animation Frame Request
 				window.requestAnimationFrame(animate);
 
