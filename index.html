@@ -202,8 +202,8 @@
 				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
 
 				// Add the camera controls
-				controls = new THREE.OrbitControls (camera, renderer.domElement);
-					controls.target.set( 0, 0, -50 ); // IMPORTANT: new location of focus
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+					controls.target.set( 0, 0, 0 );
 					controls.enableZoom     = true;
 					controls.zoomSpeed 		= 0.85;
 			    	controls.enableDamping  = false;
@@ -596,37 +596,38 @@
 
 			    	switch (e.keyCode)
 			        {
-			          		case 37:  	//  <--  (Left)
-			          			camera.position.x = x * Math.cos(cameraRotationSpeed) + z * Math.sin(cameraRotationSpeed);
-    							camera.position.z = z * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
-			          			break;
+			     //      		case 37:  	//  <--  (Left)
+			     //      			camera.position.x = x * Math.cos(cameraRotationSpeed) + z * Math.sin(cameraRotationSpeed);
+    				// 			camera.position.z = z * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
+			     //      			break;
 			          
-			          		case 38: 	//   ^   (Up)
-			          			camera.position.y = y * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
-								camera.position.x = x * Math.cos(cameraRotationSpeed) - y * Math.sin(cameraRotationSpeed);
-						        break;
+			     //      		case 38: 	//   ^   (Up)
+			     //      			camera.position.y = y * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
+								// camera.position.x = x * Math.cos(cameraRotationSpeed) - y * Math.sin(cameraRotationSpeed);
+						  //       break;
 			          
-			          		case 39:   	//  -->  (Right)
-			          			camera.position.x = x * Math.cos(cameraRotationSpeed) - z * Math.sin(cameraRotationSpeed);
-								camera.position.z = z * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
-								break;
+			     //      		case 39:   	//  -->  (Right)
+			     //      			camera.position.x = x * Math.cos(cameraRotationSpeed) - z * Math.sin(cameraRotationSpeed);
+								// camera.position.z = z * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
+								// break;
 			          
-			          		case 40: 	// 	 v   (Down)
-			          			camera.position.y = y * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
-								camera.position.x = x * Math.cos(cameraRotationSpeed) + y * Math.sin(cameraRotationSpeed);
-			        			break;
+			     //      		case 40: 	// 	 v   (Down)
+			     //      			camera.position.y = y * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
+								// camera.position.x = x * Math.cos(cameraRotationSpeed) + y * Math.sin(cameraRotationSpeed);
+			     //    			break;
+
+			     //    		case 107: 	//   +   (plus)
+			     //    			cameraRotationSpeed += 0.001;
+			     //    			break;
+			        		
+			     //    		case 109: 	//   -   (minus)
+			     //    			cameraRotationSpeed -= 0.001;
 
 			        		case 49:    // 	 1   (Num. 1 key)
 			        			changeWavesColor = true;
 			        			break;
+			        			break;
 
-			        		case 107: 	//   +   (plus)
-			        			cameraRotationSpeed += 0.001;
-			        			break;
-			        		
-			        		case 109: 	//   -   (minus)
-			        			cameraRotationSpeed -= 0.001;
-			        			break;
 			        		default:
 			        			console.log("DEBUG: pressed key: " + e.keyCode);
 			        			break;
