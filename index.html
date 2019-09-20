@@ -288,7 +288,7 @@
 						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
 						{							
 
-							curvePoints.push(new THREE.Vector2( x_pos , 30*Math.random()-5));	// curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
+							curvePoints.push(new THREE.Vector2( x_pos , 4*Math.random() - 2 ));	// curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2) / 10)));
 							x_pos += delta_x;				
 						} 
 						console.log("DEBUG:\n\tcurvePoints.length = " + curvePoints.length + "\t(pickRate = " + pickRate + ")\n\twaveColor = " + waveColor);
@@ -651,7 +651,7 @@
 					}
 
 					// Lines points update as 'tdd' variates //
-					if (wavesCreated)
+					if (wavesCreated && tdd[0] > 0)
 					{
 						updateLines();
 						//console.log("waves[0] = " + waves[0].geometry.attributes.position.array.length);
