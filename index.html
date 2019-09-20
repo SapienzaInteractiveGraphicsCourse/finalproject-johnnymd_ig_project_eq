@@ -108,7 +108,8 @@
 
 				numWaves 	= segments,
 				waves 		= [],
-				wavesCreated= false,
+				wavesCreated	  = false,
+				changeWavesColor  = false,
 				sampleRate 	= 0.04,						// spline curve sample rate for wave lines building
 
 			    cubes,
@@ -591,6 +592,10 @@
 								camera.position.x = x * Math.cos(cameraRotationSpeed) + y * Math.sin(cameraRotationSpeed);
 			        			break;
 
+			        		case 49:    // 	 1   (Num. 1 key)
+			        			changeWavesColor = true;
+			        			break;
+			        			
 			        		case 107: 	//   +   (plus)
 			        			cameraRotationSpeed += 0.001;
 			        			break;
@@ -598,9 +603,9 @@
 			        		case 109: 	//   -   (minus)
 			        			cameraRotationSpeed -= 0.001;
 			        			break;
-			        		//default:
-			        		// 	console.log("DEBUG: pressed key: " + e.keyCode);
-			        		// 	break;
+			        		default:
+			        			console.log("DEBUG: pressed key: " + e.keyCode);
+			        			break;
 			        } 	// --- END switch --- //
 					// Update camera and look again at the origin			        
 			        camera.lookAt(scene.position);
@@ -690,7 +695,8 @@
 						pickRate    = 32,
 						delta_x		= (2*radius + 6) / tdd_size * pickRate;
 
-					for (var i = 0; i < waves.length; i++) {
+					for (var i = 0; i < waves.length; i++)
+					{
 						var splineCurve,
 							linePoints,
 							waveColor	= getRandomColor(), 	// Get a random HEX color
@@ -728,13 +734,17 @@
 							oldBufferPositions[ index ] = newBufferpositions[ index ];
 							oldBufferPositions[ index ] = newBufferpositions[ index ];
 
+							if (changeWavesColor)
+							{
+								waves[i].material.color = wave.material.color;  // to heavy for the eyes
+							}
 						}
 
 						waves[i].geometry.attributes.position.needsUpdate = true; // required after the first render
 						sphere.geometry.computeBoundingSphere();
 
 					}
-
+					changeWavesColor = false;
 			};
 
 
