@@ -11,43 +11,36 @@
         <meta name="viewport"      content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon"  href="img/ig_cube.ico">
 
-        <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,400i,700|PT+Serif:400,400i&subset=latin-ext" rel="stylesheet">
+		<!-- STYLE -->
 		<link rel="stylesheet" type="text/css" href="style/style.css">
-		<link href='style/player-style/styles.css' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="style/player-style/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,400i,700|PT+Serif:400,400i&subset=latin-ext">
 		<link rel="stylesheet" href="style/player-style/font-awesome-4.3.0/css/font-awesome.min.css">
 
-		<script src="Common/jquery-3.4.0.min.js">         </script>
-		<script src="Common/general_purpose_scripts.js">  </script>
-
-		<script src="Common/three.min.js">      </script>
-		<script src="Common/OrbitControls.js">  </script>
-		<script src="Common/Stats.js">          </script>		<!-- JavaScript Performance Monitor -->
-
+		<script type="text/javascript" src="Common/three.min.js">      	</script>	<!-- JavaScript 3D library with a WebGL render 						-->
+		<script type="text/javascript" src="Common/OrbitControls.js">  	</script>	<!-- Camera orbit controls library for THREE.JS 					-->
+		<script type="text/javascript" src="Common/dat.gui.min.js">		</script>	<!-- A GUI library for changing the variables values in JavaScript 	--> 
+		<script type="text/javascript" src="Common/Stats.js">          	</script>	<!-- JavaScript Performance Monitor 								-->
+		<script src="Common/jquery-3.4.0.min.js"></script>
 	</head>
 	
 	<body>
 		<!-- Player Container -->
 		<div id="container" class="disabled">
-
 			<div id="cover-art">
-				<div id="animate"></div>
+				<div id="animate"></div> <!-- THREE.JS ANIMATION HERE -->
 			</div>
-
-
-			<div id="wave"></div>
-
-
+			<div id="wave"></div> <!-- WAVESURFER  HERE -->
 			<div id="control-bar">
 				<div class="player-control">
-					<div id="previous-button" title="Previous"><i class="fa fa-fast-backward"></i></div>
-					<div id="play-button" title="Play"><i class="fa fa-play"></i></div>
-					<div id="pause-button" title="Pause"><i class="fa fa-pause"></i></div>
-					<div id="stop-button" title="Stop"><i class="fa fa-stop"></i></div>
-					<div id="next-button" title="Next"><i class="fa fa-fast-forward"></i></div>
-					<div id="shuffle-button" title="Shuffle Off"><i class="fa fa-random"></i></div>
-					<div id="repeat-button" title="Repeat Off"><i class="fa fa-refresh"><span>1</span></i></div>
+					<div id="previous-button"  title="Previous">    <i class="fa fa-fast-backward"> </i></div>
+					<div id="play-button"      title="Play">        <i class="fa fa-play">          </i></div>
+					<div id="pause-button"     title="Pause">       <i class="fa fa-pause">         </i></div>
+					<div id="stop-button"      title="Stop">        <i class="fa fa-stop">          </i></div>
+					<div id="next-button"      title="Next">        <i class="fa fa-fast-forward">  </i></div>
+					<div id="shuffle-button"   title="Shuffle Off"> <i class="fa fa-random">        </i></div>
+					<div id="repeat-button"    title="Repeat Off">  <i class="fa fa-refresh"><span>1</span></i></div>
 				</div>
-
 				<div id="playlist">
 					<div id="track-details" title="Show playlist">
 						<i class="fa fa-sort"></i>
@@ -56,22 +49,13 @@
 							<span id="current">-</span> / <span id="total">-</span>
 						</p>
 					</div>
-
 					<div id="expand-bar" class="hidden">
-<!-- 						<form>
-							<label for="searchBox">Search</label><div><input id="searchBox" type="search" name="search"></div>
-						</form> -->
-
 						<ul id="list"></ul>
 					</div>
 				</div>
 			</div>  <!-- END control-bar -->
-
-
 			<div id="drop-zone" class="hidden">Drag &amp; Drop Audio Files Here</div>
-
 		</div>
-
 
 		<!-- Web Audio Player SCRIPTS -->
 		<script src="Common/id3-minimized.js">	  	</script>
@@ -82,27 +66,26 @@
 		<!-- MAIN visualization SCRIPT -->
 		<script>
 			// set variables
-
-			var display,
-
-				clock 	= new THREE.Clock(),
+			var clock 	= new THREE.Clock(),
 			    
-			    stats,
+			    stats,								// STATS.JS
 		
 			    renderer,
-
+				
 			    scene,
 			    sceneHeight,
 			    sceneWidth,
 
+				display,							// Animation DOM element;
 			    camera,
 			    cameraFar,
 			    cameraNear,
 			    cameraAspect,
 			    cameraViewAngle,
-			    cameraRotationSpeed  = 0.023,
+			    cameraRotationSpeed = 0.023,
 
-			    controls,
+			    controls,							// Orbit Controls;
+			    controlsEnabled 	= true,			// Control Panel option
 
 			    sphere,
 			    radius 		= 100,
@@ -111,7 +94,7 @@
 
 				numWaves 	= segments,
 				waves 		= [],
-				sampleRate 	= 0.04,						// spline curve sample rate for wave lines building
+				sampleRate 	= 0.04,					// spline curve sample rate for wave lines building
 				wavesCreated	  = false,
 				changeWavesColor  = false,
 
@@ -120,20 +103,18 @@
 
 				particles_systems = [],
 
-				analyser,
+				analyser,			// Web Audio API analyser node var;
 			    numChannels,
-			    tdd,				// Time Domain Data;
-			    fft,				// Frequency Domain Data (from Fast Fourier Transform);
-			    peaks,
-			    fftSize  = 2*segments * 2*rings, 	// Powers of 2 (default --> 2048) (lower --> faster) 
+			    tdd,				// Time Domain Data (array);
+			    fft,				// Frequency Domain Data (from Fast Fourier Transform)(array);
+			    peaks,				// FFT based array (used for cubes' scaling);
+			    fftSize  = 2*segments * 2*rings, 	// Powers of 2 (default --> 2048) (lower --> faster);
 			    									// We use one array's spot for each cube on the sphere;
-			    smoothingTimeConstantFFT  = 0.0,	// a more immediate response to the played audio 
+			    smoothingTimeConstantFFT  = 0.0,	// A more immediate response to the played audio;
 
-			    audio_path = "audio/",
+			    audio_path = "audio/",				// Default audio track list to be loaded in the player;
 			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3"]; 
 			    			// ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default songs list to be loaded //
-
-			    
 
 			// Initialize the visualization
 			window.onload=function()
@@ -141,13 +122,9 @@
   				init();
 			}
 
-
 			function init()
-			{
-				// enable THREE.js logs
-				// console.log(THREE);
-				
-				// Load the default songs in the playlist
+			{	
+				// Load the default songs in the playlist asynchronously
 				createDefaultPlaylist(audio_path, audio_list);
 
 				// Get the DOM element where to display
@@ -162,18 +139,15 @@
 				cameraNear		= 0.1;
 				cameraAspect	= sceneWidth / sceneHeight;
 				cameraViewAngle	= 65;
-
-
-				camera 		= new THREE.PerspectiveCamera(
+				camera 			= new THREE.PerspectiveCamera(
 												cameraViewAngle, 
 												cameraAspect, 
 												cameraNear, 
 												cameraFar
 											);
-				// Set the Camera position (initial)
+				// Set the camera (initial) position 
 				camera.position.z = 540;		// move backward
-
-				
+	
 				// Create the renderer and camera (the WebGL one)s
 				renderer 	= new THREE.WebGLRenderer( { 
 					antialias      	: true, 	// default false
@@ -187,16 +161,11 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( sceneWidth, sceneHeight );
 
-
 				// Append the renderer DOM element on 'display'
 				display.appendChild( renderer.domElement );
 				
-
 				// Create the scene
 				scene 	  = new THREE.Scene();
-
-				// Set the scene's background color
-				//scene.background = new THREE.Color( '#FCFCFC' );
 
 				// add some fog in the scene (black fog)
 				scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 );
@@ -284,7 +253,7 @@
 
 				// Creates and adds a set of lines (splineCurves) to the main sphere
 				//      reproducing the Time Domain Data of the audio ('tdd').
-				function createLines(numWaves)
+				function createLines()
 				{
 					var deltaPhi 	= 2*Math.PI / segments,
 						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
@@ -365,16 +334,13 @@
 									new THREE.SphereGeometry( radius, segments, rings), 
 									new THREE.MeshNormalMaterial({
 											wireframe   : true,
-											flatShading	: true, 
 											transparent	: true,  
-											opacity    	: 0.023
+											flatShading	: true, 
+											opacity    	: 0.016
 										})
-										    							// we don't want to see it
 								 );
-
 					// Add the sphere to the scene
 					scene.add(sphere);
-
 
 
 					//###################//
@@ -539,18 +505,16 @@
 				//         (fft scale to one channel size)
 				analyser.fftSize = fftSize * numChannels;
 
-				// Tune up the power value in the scaling range for the FFT analysis data
-					// analyser.minDecibels = -100;  // Where 0dB is the loudest possible sound, (-10 dB is a 10th of that). 
-					// analyser.maxDecibels = -30;   // The default value is (-100dB for min)  and  (-30dB for max).		
-				analyser.smoothingTimeConstant = smoothingTimeConstantFFT; // (0 meaning no time averaging). The default value is 0.8.
+				// FFT time averaging (0 meaning no time averaging). The default value is 0.8;
+				analyser.smoothingTimeConstant = smoothingTimeConstantFFT;
 
 				// Initialize the buffers for the Frequency and Time Domain Data:
 				//     (it will be updated on 'onaudioprocess' event firing)
 				fft 		= new Uint8Array(analyser.frequencyBinCount);
 				tdd 		= new Uint8Array(analyser.fftSize);		// this array should be the same length as the fftSize of the analyser;
 
-				// Array that will track smoothly the frequencies variations in time 
-				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing) 
+				//         Array that will track smoothly the frequencies variations in time 
+				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing);
 				peaks 		= new Float32Array(fftSize);
 
 				console.log("DEBUG:\n\tfft-length \t\t= " + fft.length + "\n\tpeaks-length \t= " + peaks.length + "\n\ttdd-length \t\t= " + tdd.length);
@@ -581,58 +545,29 @@
 
 				// 'onKeyDown' events function 
 			    function setupKeyControls(e) {
-			    	var x = camera.position.x,
-					    y = camera.position.y,
-					    z = camera.position.z;
+			    	// var x = camera.position.x,
+					   //  y = camera.position.y,
+					   //  z = camera.position.z;
 
 			    	switch (e.keyCode)
 			        {
-			     //      		case 37:  	//  <--  (Left)
-			     //      			camera.position.x = x * Math.cos(cameraRotationSpeed) + z * Math.sin(cameraRotationSpeed);
-    				// 			camera.position.z = z * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
-			     //      			break;
-			          
-			     //      		case 38: 	//   ^   (Up)
-			     //      			camera.position.y = y * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
-								// camera.position.x = x * Math.cos(cameraRotationSpeed) - y * Math.sin(cameraRotationSpeed);
-						  //       break;
-			          
-			     //      		case 39:   	//  -->  (Right)
-			     //      			camera.position.x = x * Math.cos(cameraRotationSpeed) - z * Math.sin(cameraRotationSpeed);
-								// camera.position.z = z * Math.cos(cameraRotationSpeed) + x * Math.sin(cameraRotationSpeed);
-								// break;
-			          
-			     //      		case 40: 	// 	 v   (Down)
-			     //      			camera.position.y = y * Math.cos(cameraRotationSpeed) - x * Math.sin(cameraRotationSpeed);
-								// camera.position.x = x * Math.cos(cameraRotationSpeed) + y * Math.sin(cameraRotationSpeed);
-			     //    			break;
-
-			     //    		case 107: 	//   +   (plus)
-			     //    			cameraRotationSpeed += 0.001;
-			     //    			break;
-			        		
-			     //    		case 109: 	//   -   (minus)
-			     //    			cameraRotationSpeed -= 0.001;
-
-			        		case 49:    // 	 1   (Num. 1 key)
-			        			changeWavesColor = true;
-			        			break;
-			        			break;
-
-			        		default:
-			        			console.log("DEBUG: pressed key: " + e.keyCode);
-			        			break;
+			        	case 49:    // 	 1   (Num. 1 key)
+			        		changeWavesColor = true;
+			        		break;
+			        
+			       		default:
+			       			console.log("DEBUG: pressed key: " + e.keyCode + " === " + e.code);
+			       			break;
 			        } 	// --- END switch --- //
 					// Update camera and look again at the origin			        
-			        camera.lookAt(scene.position);
-			        controls.update();
+			        // camera.lookAt(scene.position);
+			        // controls.update();
 
 			    }; 	// --- END setupKeyControls(e)
 
 
-
-				// Create the lines
-				createLines(numWaves);
+				// Create the wave lines
+				createLines();
 
 			}; // --- END init() --- //
 
@@ -724,7 +659,6 @@
 							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
 							oldBufferPositions = waves[i].geometry.attributes.position.array; 	
 
-
 						for (var j = tdd_size - 1; j >= 0; j -= pickRate)
 						{
 							curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
@@ -738,40 +672,34 @@
 						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
 
 						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
-
 						var waveMaterial = new 	THREE.LineBasicMaterial({ 
 													color : waveColor 
 												});
-
-						// Create the final object to add to the scene
+						// Create the final object to get the properties from
 						var wave = new THREE.Line( waveGeometry, waveMaterial );
 
-
+						// COPY the position arrays content from the new 'wave'
 						var newBufferpositions 	= wave.geometry.attributes.position.array;
 						for ( var index = 0, l = oldBufferPositions.length; index < l; index ++ ) {
-
 							oldBufferPositions[ index ] = newBufferpositions[ index ];
 							oldBufferPositions[ index ] = newBufferpositions[ index ];
 							oldBufferPositions[ index ] = newBufferpositions[ index ];
-
 							if (changeWavesColor)
 							{
-								waves[i].material.color = wave.material.color;  // to heavy for the eyes
+								waves[i].material.color = wave.material.color;  	// update colors on-demand;
 							}
 						}
-
-						waves[i].geometry.attributes.position.needsUpdate = true; // required after the first render
+						waves[i].geometry.attributes.position.needsUpdate = true; 	// required after the first render
 						sphere.geometry.computeBoundingSphere();
-
 					}
-					changeWavesColor = false;
+					changeWavesColor = false; 										// update colors on-demand;
 			};
 
 
-				//###############################//
-				//####    Helper Functions   ####//
-				//###############################//
-
+			//###############################//
+			//####    Helper Functions   ####//
+			//###############################//
+			//
 				// Returns a random number between min (inclusive) and max (exclusive)
 				function randomRangeNumber(min, max) {
 				    return Math.random() * (max - min) + min;
@@ -804,10 +732,11 @@
 					cube_L_coef		= 1.6;
 					cube_l_coef 	= 0.5;
 					cube_h_coef		= 0.85;
+
+					camera.position.z = 540;
+					controls.update();
 				}
 
-		</script>
-
-
+		</script><!--  --- END MAIN script ---  -->
 	</body>
 </html>
