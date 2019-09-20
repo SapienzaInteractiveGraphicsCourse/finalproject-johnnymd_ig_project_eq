@@ -25,7 +25,6 @@
 	</head>
 	
 	<body>
-		
 		<!-- Player Container -->
 		<div id="container" class="disabled">
 
@@ -109,6 +108,8 @@
 
 				numWaves 	= segments,
 				waves 		= [],
+				wavesCreated= false,
+				sampleRate 	= 0.04,						// spline curve sample rate for wave lines building
 
 			    cubes,
 			    numCubes,
@@ -269,33 +270,40 @@
 				//      reproducing the Time Domain Data of the audio ('tdd').
 				function createLines(numWaves)
 				{
-					var nextAngle 	= 0,
-						deltaPhi 	= 2*Math.PI / segments,
+					var deltaPhi 	= 2*Math.PI / segments,
+						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
 						tdd_size 	= tdd.length,
-						pickRate    = 32,
+						pickRate    = 32, 
 						delta_x		= (2*radius + 6) / tdd_size * pickRate;
 
 					for (var j = 0; j < segments; j++)
 					{
 						var splineCurve,
 							linePoints,
+							waveColor	= getRandomColor(), 	// Get a random HEX color
 							curvePoints	= [],
-							x_pos		= 0 - radius - 3; 			// sphere centered in (0, 0, 0)	
+							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
 
-						
 
 						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
-						{
-							curvePoints.push(new THREE.Vector2( x_pos , 10*Math.random()-5));
+						{							
+
+							curvePoints.push(new THREE.Vector2( x_pos , 30*Math.random()-5));	// curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
 							x_pos += delta_x;				
-						} console.log("curvePoints.length = " + curvePoints.length);
+						} 
+						console.log("DEBUG:\n\tcurvePoints.length = " + curvePoints.length + "\t(pickRate = " + pickRate + ")\n\twaveColor = " + waveColor);
 						
+
+						// Build the SplineCurve
 						splineCurve = new THREE.SplineCurve( curvePoints );
 
-						linePoints 	= splineCurve.getPoints( tdd_size * 10 );
+						// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
+						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
 
-						var waveGeometry = new THREE.BufferGeometry().setFromPoints( linePoints );
-						var waveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
+						var waveMaterial = new 	THREE.LineBasicMaterial({ 
+													color : waveColor 
+												});
 
 						// Create the final object to add to the scene
 						var wave = new THREE.Line( waveGeometry, waveMaterial );
@@ -304,17 +312,19 @@
 						wave.rotateZ( Math.PI / 2 );
 						wave.rotateX(  nextAngle  );
 
+						wave.geometry.computeBoundingSphere();
 
 						waves.push(wave);
-						//console.log("waves[j].points = " + wave.geometry.vertices;
 
 						sphere.add(wave);
+
 
 						// Get the next angle
 						nextAngle += deltaPhi;
 					}
-				};
 
+					wavesCreated = true;
+				};
 
 
 				// Creates the main sphere //
@@ -507,7 +517,7 @@
 				// 'channelCountMode' is set to 'explicit' on an analyserNode,
 				// so we can get the correct # of channels of the AudioNode in input 
 				numChannels = analyser.channelCount;
-				console.log("DEBUG:\nnumChannels = " + numChannels);
+				console.log("DEBUG:\n\tnumChannels = " + numChannels);
 
 				// Set the FFT size (default fftSize=2048)(powers of 2)
 				//         (fft scale to one channel size)
@@ -599,35 +609,6 @@
 
 
 
-				//###############################//
-				//####    Helper Functions   ####//
-				//###############################//
-
-				// Returns a random number between min (inclusive) and max (exclusive)
-				function randomRangeNumber(min, max) {
-				    return Math.random() * (max - min) + min;
-				}
-
-				// Returns on of the two arguments randomly
-				function randomOutOfTwo(first, second) {
-					return (Math.random() < 0.5)  ?  first  :  second;
-				}
-
-				// Set default parameters
-				function setDefaultParams()
-				{
-					smoothingTimeConstantFFT 	= 0.0;
-
-					numParticles 	= 1400;
-					
-					cubeSize 		= 8;
-					cube_L_coef		= 1.6;
-					cube_l_coef 	= 0.5;
-					cube_h_coef		= 0.85;
-				}
-
-
-
 				// Create the lines
 				createLines(numWaves);
 
@@ -669,19 +650,12 @@
 						cube.scale.z = cube.scaleValue + ( (peaks[fft_index])  ?  1 + (3 * (fft[fft_index] / peaks[fft_index]))  :  0);
 					}
 
-
 					// Lines points update as 'tdd' variates //
-					if (waves[0].points)
+					if (wavesCreated)
 					{
-						for (var r = waves.length - 1; r >= 0; r--) {
-							for (var i = waves.points.length - 1; i >= 0; i--) {
-								console.log("waves.points[" + r + "] = " + waves[r].points[i]);
-							}
-
-						}					
-					}
-
-
+						updateLines();
+						//console.log("waves[0] = " + waves[0].geometry.attributes.position.array.length);
+					}  
 				}
 
 				// Sphere rotation (all the hierarchical structure of the sphere will rotate)
@@ -706,6 +680,101 @@
 				renderer.render(scene, camera);
 			
 			} 	// --- END render() --- //
+
+
+			function updateLines()
+				{
+					var deltaPhi 	= 2*Math.PI / segments,
+						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
+						tdd_size 	= tdd.length,
+						pickRate    = 32,
+						delta_x		= (2*radius + 6) / tdd_size * pickRate;
+
+					for (var i = 0; i < waves.length; i++) {
+						var splineCurve,
+							linePoints,
+							waveColor	= getRandomColor(), 	// Get a random HEX color
+							curvePoints	= [],
+							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
+							oldBufferPositions = waves[i].geometry.attributes.position.array; 	
+
+
+						for (var j = tdd_size - 1; j >= 0; j -= pickRate)
+						{
+							curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
+							x_pos += delta_x;				
+						}						
+					
+						// Build the SplineCurve
+						splineCurve = new THREE.SplineCurve( curvePoints );
+
+						// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
+						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
+
+						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
+
+						var waveMaterial = new 	THREE.LineBasicMaterial({ 
+													color : waveColor 
+												});
+
+						// Create the final object to add to the scene
+						var wave = new THREE.Line( waveGeometry, waveMaterial );
+
+
+						var newBufferpositions 	= wave.geometry.attributes.position.array;
+						for ( var index = 0, l = oldBufferPositions.length; index < l; index ++ ) {
+
+							oldBufferPositions[ index ] = newBufferpositions[ index ];
+							oldBufferPositions[ index ] = newBufferpositions[ index ];
+							oldBufferPositions[ index ] = newBufferpositions[ index ];
+
+						}
+
+						waves[i].geometry.attributes.position.needsUpdate = true; // required after the first render
+						sphere.geometry.computeBoundingSphere();
+
+					}
+
+			};
+
+
+				//###############################//
+				//####    Helper Functions   ####//
+				//###############################//
+
+				// Returns a random number between min (inclusive) and max (exclusive)
+				function randomRangeNumber(min, max) {
+				    return Math.random() * (max - min) + min;
+				}
+
+				// Returns on of the two arguments randomly
+				function randomOutOfTwo(first, second) {
+					return (Math.random() < 0.5)  ?  first  :  second;
+				}
+
+				// Returns a random HEX color string
+				function getRandomColor() 	// string HEX color 
+				{
+					var c = '#'+Math.floor(Math.random()*16777215).toString(16);
+					while (c.length < 7)
+					{
+						c += Math.floor( Math.random()*10 ).toString();
+					}
+					return c;
+				};
+
+				// Set default parameters
+				function setDefaultParams()
+				{
+					smoothingTimeConstantFFT 	= 0.0;
+
+					numParticles 	= 1400;
+					
+					cubeSize 		= 8;
+					cube_L_coef		= 1.6;
+					cube_l_coef 	= 0.5;
+					cube_h_coef		= 0.85;
+				}
 
 		</script>
 
