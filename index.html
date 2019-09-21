@@ -92,7 +92,13 @@
 				rings 		= 64,
 				segments	= 8,
 
-				alpha_texture_path = 'img/stripes_alpha_texture_3.png';
+				alpha_texture_path = 'img/stripes_alpha_texture_3.png',
+				spiralSphereNorth,
+				spiralSphereSouth,
+				radiusSS 		= 32,
+				ringsSS 		= 64,
+				segmentsSS		= 64,
+
 
 				numWaves 	= segments,
 				waves 		= [],
@@ -254,7 +260,10 @@
 				// Create two animated spiral spheres to be included on the poles of the main sphere 
 				function createSpiralSpheres()
 				{
-					// Create the material
+					// Create the sphere geometry;
+					var sphereGeometry = new THREE.SphereGeometry(radiusSS, segmentsSS, ringsSS);
+					
+					// Create the material for the spiral sphere
 					var material = new THREE.MeshStandardMaterial({
 											side        : THREE.DoubleSide, 		// we need to enable the double side rendering; 	
 											color       : 0x000000,
@@ -262,10 +271,21 @@
 											alphaTest   : 0.5
 										});
 
-					// Load and setup the alpha texture image
-					var alphaTexture = new THREE.TextureLoader();
-					alphaTexture.load(alpha_texture_path);
-				}
+					// Load the alpha texture image 
+					var alphaTexture = new THREE.TextureLoader().load(alpha_texture_path);
+
+					// Add the alpha texture to the material and setup it
+					material.alphaMap            = alphaTexture;
+					material.alphaMap.magFilter  = THREE.NearestFilter;
+					material.alphaMap.wrapT      = THREE.RepeatWrapping;
+					material.alphaMap.repeat.y   = 1;
+
+					spiralSphereNorth = new THREE.Mesh(sphereGeometry, material);
+					spiralSphereSouth = spiralSphereNorth.clone();
+
+					sphere.add(spiralSphereNorth);
+					sphere.add(spiralSphereSouth);
+				}; 	// --- END createSpiralSpheres() --- //
 
 
 				// Creates the main sphere //
@@ -585,6 +605,9 @@
 				// Create the (main) sphere
 				createSphere();
 
+				// Create the alpha texture animated spiral spheres
+				// createSpiralSpheres();
+
 				// Create the wave lines
 				createLines();
 
@@ -654,6 +677,9 @@
 				//	('abs' -> avoid the full opacity fading)
 				// sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
 
+				// Spiral spheres alpha texture animation (y-offset variation in time)
+				// spiralSphereNorth.material.alphaMap.offset.y  = 0.55 * Math.cos(0.24 * time);
+				// spiralSphereSouth.material.alphaMap.offset.y  = 0.55 * Math.cos(0.24 * time);
 
 				// Particle systems' rotation
 				for (var i = particles_systems.length - 1; i >= 0; i--) {
