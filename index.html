@@ -201,14 +201,6 @@
 
 
 
-				// Create the (main) sphere
-				createSphere();
-
-				// Call the animate() routine
-				animate();
-
-
-
 				//#########################//
 				//#### EVENT LISTENERS ####// 
 				//#########################//
@@ -256,67 +248,6 @@
 						onAudioAvailable();		// console.log("\nDEBUG:\n\nfft \t= " + fft + "\n\npeaks \t= " + peaks + "\n\ntdd \t= " + tdd + "\n\n");
 
 					});
-
-
-				// Creates and adds a set of lines (splineCurves) to the main sphere
-				//      reproducing the Time Domain Data of the audio ('tdd').
-				function createLines()
-				{
-					var deltaPhi 	= 2*Math.PI / numWaves,
-						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
-						tdd_size 	= tdd.length,
-						pickRate    = 32, 
-						delta_x		= (2*radius + 6) / tdd_size * pickRate;
-
-					for (var j = 0; j < numWaves; j++)
-					{
-						var splineCurve,
-							linePoints,
-							waveColor	= getRandomColor(), 	// Get a random HEX color
-							curvePoints	= [],
-							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
-
-
-						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
-						{							
-
-							curvePoints.push(new THREE.Vector2( x_pos , 4*Math.random() - 2 ));	// curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2) / 10)));
-							x_pos += delta_x;				
-						} 
-						console.log("DEBUG:\n\tcurvePoints.length = " + curvePoints.length + "\t(pickRate = " + pickRate + ")\n\twaveColor = " + waveColor);
-						
-
-						// Build the SplineCurve
-						splineCurve = new THREE.SplineCurve( curvePoints );
-
-						// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
-						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
-
-						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
-						var waveMaterial = new 	THREE.LineBasicMaterial({ 
-													color : waveColor 
-												});
-
-						// Create the final object to add to the scene
-						var wave = new THREE.Line( waveGeometry, waveMaterial );
-
-						// Put it on the correct axis
-						wave.rotateZ( Math.PI / 2 );
-						wave.rotateX(  nextAngle  );
-
-						wave.geometry.computeBoundingSphere();
-
-						// Save the wave for further use
-						waves.push(wave);
-
-						// Add it to the scene
-						sphere.add(wave);
-
-						// Get the next angle
-						nextAngle += deltaPhi;
-					}
-					wavesCreated = true;
-				};
 
 
 				// Creates the main sphere //
@@ -545,6 +476,67 @@
 				}; // --- END onAudioAvailable() --- //
 
 
+				// Creates and adds a set of lines (splineCurves) to the main sphere
+				//      reproducing the Time Domain Data of the audio ('tdd').
+				function createLines()
+				{
+					var deltaPhi 	= 2*Math.PI / numWaves,
+						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
+						tdd_size 	= tdd.length,
+						pickRate    = 32, 
+						delta_x		= (2*radius + 6) / tdd_size * pickRate;
+
+					for (var j = 0; j < numWaves; j++)
+					{
+						var splineCurve,
+							linePoints,
+							waveColor	= getRandomColor(), 	// Get a random HEX color
+							curvePoints	= [],
+							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
+
+
+						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
+						{							
+
+							curvePoints.push(new THREE.Vector2( x_pos , 4*Math.random() - 2 ));	// curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2) / 10)));
+							x_pos += delta_x;				
+						} 
+						console.log("DEBUG:\n\tcurvePoints.length = " + curvePoints.length + "\t(pickRate = " + pickRate + ")\n\twaveColor = " + waveColor);
+						
+
+						// Build the SplineCurve
+						splineCurve = new THREE.SplineCurve( curvePoints );
+
+						// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
+						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
+
+						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
+						var waveMaterial = new 	THREE.LineBasicMaterial({ 
+													color : waveColor 
+												});
+
+						// Create the final object to add to the scene
+						var wave = new THREE.Line( waveGeometry, waveMaterial );
+
+						// Put it on the correct axis
+						wave.rotateZ( Math.PI / 2 );
+						wave.rotateX(  nextAngle  );
+
+						wave.geometry.computeBoundingSphere();
+
+						// Save the wave for further use
+						waves.push(wave);
+
+						// Add it to the scene
+						sphere.add(wave);
+
+						// Get the next angle
+						nextAngle += deltaPhi;
+					}
+					wavesCreated = true;
+				}; // --- END createLines() --- //
+
+
 				// 'onKeyDown' events function 
 			    function setupKeyControls(e) {
 			    	// var x = camera.position.x,
@@ -568,8 +560,16 @@
 			    }; 	// --- END setupKeyControls(e)
 
 
+
+
+				// Create the (main) sphere
+				createSphere();
+
 				// Create the wave lines
 				createLines();
+
+				// Call the animate() routine
+				animate();
 
 				// Call the GUI controller
 				guiController();
@@ -728,6 +728,7 @@
 					return c;
 				};
 
+
 				var controller = {
 						setDefault 			: function(){ setDefaultParams(); },
 						changeWavesColor	: function(){ changeWavesColor=true; },
@@ -739,21 +740,20 @@
 						cubeScale_L 		: 0.0,
 						cubeScale_l 		: 0.0,
 						cubeScale_h 		: 0.0
-					},
-					guiBackup;
-
-
+					};
+				
 				// GUI controller
 				function guiController()
 				{
 					gui = new dat.GUI({
-								closeOnTop 	: true,
+								closeOnTop 	: false,
 								width 		: 236,
 								load 		: getPresetJSON(),
-								preset 		: 'Preset1' 
+								preset 		: 'BestPreset' 
 							});
 
 					gui.remember(controller);
+
 
 					var f1 = gui.addFolder('Audio'); 		f1.open();
 					f1.add(controller, "smoothness", 0.0, 1.0, 0.01).onChange(function()
@@ -789,13 +789,10 @@
 					gui.add(controller, "setDefault");
 
 
-					guiBackup = gui.getSaveObject();
-					gui.load  = guiBackup;
-
 					// presetJSON: created from pressing the gear.
 					function getPresetJSON() {
 						return {
-							  "preset": "Preset1",
+							  "preset": "BestPreset",
 							  "closed": false,
 							  "remembered": {
 							    "Default": {
@@ -809,7 +806,7 @@
 							        "string2": "string2"
 							      }
 							    },
-							    "Preset1": {
+							    "BestPreset": {
 							      "0": {
 							        "AudioVolume": 1,
 							        "cubeScale_L": 0,
@@ -846,14 +843,15 @@
 				{
 					analyser.smoothingTimeConstant 	= 0.0;
 
-					numParticles 	= 1400;
+					numParticles 	= 1600;
 					
 					cubeSize 		= 8;
 					cube_L_coef		= 0; //1.6;
 					cube_l_coef 	= 0; //0.5;
 					cube_h_coef		= 0; //0.85;
 
-					camera.position.z = 540;
+					controls.maxDistance = no_particle_space;
+					camera.position.z 	 = no_particle_space;
 					controls.update();
 				};
 
