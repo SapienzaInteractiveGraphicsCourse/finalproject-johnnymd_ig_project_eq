@@ -738,7 +738,8 @@
 							changeWavesColor = true;
 						},
 						ZOOM_OUT__ON_OFF 		: function(){ 
-							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity; 
+							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity;
+							if (controls.maxDistance === no_particle_space  &&  Math.abs(camera.position.z) > no_particle_space) camera.position.z = no_particle_space;
 						},
 						smoothness 			: 0.0,
 						PeaksTresholdUpdate	: 10.0,
