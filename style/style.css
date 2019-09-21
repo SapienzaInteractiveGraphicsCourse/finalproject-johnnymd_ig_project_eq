@@ -38,6 +38,11 @@ a:link {
 	text-align : center !important;
 }
 
+.dg .closed li.title {
+	background    : rgba(0, 0, 0, 0.8)  url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==) 6px 10px no-repeat !important;
+	border-bottom : 1px solid rgba(0, 0, 0, 0.95) !important;
+}
+
 .dg li.title {
 	background    : rgba(0, 0, 0, 0.8)  url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat !important;
 	border-bottom : 1px solid rgba(0, 0, 0, 0.95) !important;
