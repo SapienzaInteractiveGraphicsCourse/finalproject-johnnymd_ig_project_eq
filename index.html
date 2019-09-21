@@ -731,13 +731,13 @@
 
 
 				var controller = {
-						setDefault 			: function(){ 
+						SET_DEFAULT			: function(){ 
 							setDefaultParams();
 						},
 						changeWavesColor	: function(){ 
 							changeWavesColor = true;
 						},
-						Zoom_Out_OnOff 		: function(){ 
+						ZOOM_OUT__ON_OFF 		: function(){ 
 							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity; 
 						},
 						smoothness 			: 0.0,
@@ -760,6 +760,8 @@
 							});
 
 					gui.remember(controller);
+
+					gui.add(controller, "SET_DEFAULT");
 
 					var f1 = gui.addFolder('Audio'); 		f1.open();
 					f1.add(controller, "smoothness", 0.0, 1.0, 0.01).onChange(function()
@@ -784,7 +786,7 @@
 					f2.add(controller, "changeWavesColor");
 
 
-					var f3 = gui.addFolder('Cubes/Bars'); 	f3.open();
+					var f3 = gui.addFolder('Cubes/Bars');
 					f3.add(controller, "cubeScale_L", -1.0, 1.0, 0.005).onChange(function()
 					{
 						cube_L_coef = controller.cubeScale_L;
@@ -799,9 +801,8 @@
 					});
 
 
-					gui.add(controller, "Zoom_Out_OnOff");
-					gui.add(controller, "setDefault");
-
+					gui.add(controller, "ZOOM_OUT__ON_OFF");
+					
 				}; // --- END guiController() --- //
 
 					// presetJSON: created from pressing the gear.
@@ -857,7 +858,7 @@
 							    },
 							    "Cubes/Bars": {
 							      "preset": "Default",
-							      "closed": false,
+							      "closed": true,
 							      "folders": {}
 							    }
 							  }
@@ -868,14 +869,17 @@
 				// Set default parameters
 				function setDefaultParams()
 				{
-					analyser.smoothingTimeConstant 	= 0.0;
-
 					numParticles 	= 1600;
 					
 					cubeSize 		= 8;
 					cube_L_coef		= 0; //1.6;
 					cube_l_coef 	= 0; //0.5;
 					cube_h_coef		= 0; //0.85;
+
+					analyser.smoothingTimeConstant 	= 0.0;
+					wavesurfer.setVolume(1.0);
+					deltaPeaks            = 10.0;
+					peaksDecreasingParam  = 0.96;
 
 					controls.maxDistance = no_particle_space;
 					camera.position.z 	 = no_particle_space;
