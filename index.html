@@ -180,6 +180,7 @@
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
 					controls.target.set( 0, 0, 0 );
 					controls.enableZoom     = true;
+					controls.maxDistance    = no_particle_space; 	// limit the zoom-out by default (Perspective Camera);
 					controls.zoomSpeed 		= 0.55;
 			    	controls.autoRotate     = false;
 					controls.enabled 		= true;
