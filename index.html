@@ -118,7 +118,7 @@
 			    									// We use one array's spot for each cube on the sphere;
 			    smoothingTimeConstantFFT  = 0.0,	// A more immediate response to the played audio;
 			    deltaPeaks 				  = 10.0,   // Upperbound threshold for peaks update;  	
-
+			    peaksDecreasingParam 	  = 0.96, 	// Decreasing speed in time (at least one update per frame);
 			    audio_path = "audio/",				// Default audio track list to be loaded in the player;
 			    audio_list = ["Bob Marley - Don't worry be happy.mp3", "Aloe Blacc - I Need a Dollar.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3"]; 
 			    			// ["AC I DC - Highway to Hell.mp3", "Aloe Blacc - I Need a Dollar.mp3", "Ben E. King - Stand By Me.mp3", "Bob Marley - Don't worry be happy.mp3", "Chuck Berry - Johnny B Goode.mp3", "Elvis Presley - Heartbreak Hotel.mp3", "Gnarls Barkley - Crazy.mp3", "Gun N' Roses - Sweet Child O' Mine.mp3", "Jeff Buckley - Hallelujah.mp3", "Jhon Lennon - Imagine.mp3", "Me & My Toothbrush - Push the Tempo.mp3", "Michael Jackson - Billie Jean.mp3", "Nirvana - Smells Like Teen Spirit.mp3", "Pink Floyd - Another brick in the wall.mp3", "Queen - Under Pressure.mp3", "R.E.M. - Losing My Religion.mp3", "Radiohead - Creep.mp3", "Ray Charles - Hit the Road Jack.mp3", "The Animals - The House of the Rising Sun.mp3", "The Eagles - Hotel California.mp3", "The Police - Every Breath You Take.mp3", "The Who - My Generation.mp3"];  // default songs list to be loaded //
@@ -471,7 +471,7 @@
 						else 
 						{
 							// decreasing the peak slowly till a new peaks is found
-							peaks[i] *= 0.96;
+							peaks[i] *= peaksDecreasingParam;
 						}
 					}
 				}; // --- END onAudioAvailable() --- //
@@ -741,7 +741,8 @@
 							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity; 
 						},
 						smoothness 			: 0.0,
-						PeaksTreshold		: 10.0,
+						PeaksTresholdUpdate	: 10.0,
+						PeaksDecreasingRate : 0.96,
 						AudioVolume 		: 1.0,
 						cubeScale_L 		: 0.0,
 						cubeScale_l 		: 0.0,
@@ -765,9 +766,13 @@
 					{
 						analyser.smoothingTimeConstant = controller.smoothness;
 					});
-					f1.add(controller, "PeaksTreshold", -255.0, 255.0, 0.5).onChange(function()
+					f1.add(controller, "PeaksTresholdUpdate", -255.0, 255.0, 0.5).onChange(function()
 					{
-						deltaPeaks = controller.PeaksTreshold;
+						deltaPeaks = controller.PeaksTresholdUpdate;
+					});
+					f1.add(controller, "PeaksDecreasingRate", 0.5, 1.0, 0.001).onChange(function()
+					{
+						peaksDecreasingParam = controller.PeaksDecreasingRate;
 					});
 					f1.add(controller, "AudioVolume", 0.0, 1.0, 0.01).onChange(function()
 					{ 
@@ -802,58 +807,61 @@
 					// presetJSON: created from pressing the gear.
 					function getPresets() {
 						return {
-						  "preset": "BestPreset",
-						  "closed": false,
-						  "remembered": {
-						    "Default": {
-						      "0": {
-						        "smoothness": 0,
-						        "PeaksTreshold": 10,
-						        "AudioVolume": 1,
-						        "cubeScale_L": 0,
-						        "cubeScale_l": 0,
-						        "cubeScale_h": 0
-						      }
-						    },
-						    "BestPreset": {
-						      "0": {
-						        "smoothness": 0,
-						        "PeaksTreshold": 10,
-						        "AudioVolume": 1,
-						        "cubeScale_L": 0,
-						        "cubeScale_l": 0,
-						        "cubeScale_h": 0
-						      }
-						    },
-						    "RocketPreset": {
-						      "0": {
-						        "smoothness": 0,
-						        "PeaksTreshold": -230,
-						        "AudioVolume": 1,
-						        "cubeScale_L": 0,
-						        "cubeScale_l": 0,
-						        "cubeScale_h": 0
-						      }
-						    }
-						  },
-						  "folders": {
-						    "Audio": {
-						      "preset": "Default",
-						      "closed": false,
-						      "folders": {}
-						    },
-						    "Wave Lines": {
-						      "preset": "Default",
-						      "closed": false,
-						      "folders": {}
-						    },
-						    "Cubes/Bars": {
-						      "preset": "Default",
-						      "closed": false,
-						      "folders": {}
-						    }
-						  }
-						};
+							  "preset": "RocketPreset",
+							  "closed": false,
+							  "remembered": {
+							    "Default": {
+							      "0": {
+							        "smoothness": 0,
+							        "PeaksTresholdUpdate": 10,
+							        "PeaksDecreasingRate": 0.96,
+							        "AudioVolume": 1,
+							        "cubeScale_L": 0,
+							        "cubeScale_l": 0,
+							        "cubeScale_h": 0
+							      }
+							    },
+							    "BestPreset": {
+							      "0": {
+							        "smoothness": 0,
+							        "PeaksTresholdUpdate": 10,
+							        "PeaksDecreasingRate": 0.96,
+							        "AudioVolume": 1,
+							        "cubeScale_L": 0,
+							        "cubeScale_l": 0,
+							        "cubeScale_h": 0
+							      }
+							    },
+							    "RocketPreset": {
+							      "0": {
+							        "smoothness": 0,
+							        "PeaksTresholdUpdate": -230,
+							        "PeaksDecreasingRate": 0.96,
+							        "AudioVolume": 1,
+							        "cubeScale_L": 0,
+							        "cubeScale_l": 0,
+							        "cubeScale_h": 0
+							      }
+							    }
+							  },
+							  "folders": {
+							    "Audio": {
+							      "preset": "Default",
+							      "closed": false,
+							      "folders": {}
+							    },
+							    "Wave Lines": {
+							      "preset": "Default",
+							      "closed": false,
+							      "folders": {}
+							    },
+							    "Cubes/Bars": {
+							      "preset": "Default",
+							      "closed": false,
+							      "folders": {}
+							    }
+							  }
+							};
 					}; // --- END setRocketPreset() --- //
 					
 
