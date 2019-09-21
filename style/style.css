@@ -22,3 +22,13 @@ a:link {
     text-decoration : none;
     text-shadow 	: 0 0 1px rgba(0, 0, 0, 0.9);
 }
+
+
+.folder .dg ul {
+	margin-top: 0 !important;
+}
+
+.function > div > .property-name {
+	width      : 100%  !important;
+	text-align : center;
+}

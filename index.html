@@ -16,7 +16,8 @@
 		<link rel="stylesheet" type="text/css" href="style/player-style/styles.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,400i,700|PT+Serif:400,400i&subset=latin-ext">
 		<link rel="stylesheet" href="style/player-style/font-awesome-4.3.0/css/font-awesome.min.css">
-
+		
+		<!-- SCRIPTS -->
 		<script type="text/javascript" src="Common/three.min.js">      	</script>	<!-- JavaScript 3D library with a WebGL render 						-->
 		<script type="text/javascript" src="Common/OrbitControls.js">  	</script>	<!-- Camera orbit controls library for THREE.JS 					-->
 		<script type="text/javascript" src="Common/dat.gui.min.js">		</script>	<!-- A GUI library for changing the variables values in JavaScript 	--> 
@@ -82,10 +83,9 @@
 			    cameraNear,
 			    cameraAspect,
 			    cameraViewAngle,
-			    cameraRotationSpeed = 0.023,
 
+			    gui,								// dat.GUI()
 			    controls,							// Orbit Controls;
-			    controlsEnabled 	= true,			// Control Panel option
 
 			    sphere,
 			    radius 		= 100,
@@ -99,9 +99,15 @@
 				changeWavesColor  = false,
 
 			    cubes,
+			    cubeSize 	= 8,
+				cube_L_coef = 1.6,
+				cube_l_coef = 0.5,
+				cube_h_coef = 0.85,
+
 			    numCubes,
 
 				particles_systems = [],
+				no_particle_space = 1.0 * 540,
 
 				analyser,			// Web Audio API analyser node var;
 			    numChannels,
@@ -146,7 +152,7 @@
 												cameraFar
 											);
 				// Set the camera (initial) position 
-				camera.position.z = 540;		// move backward
+				camera.position.z = no_particle_space;		// move backward
 	
 				// Create the renderer and camera (the WebGL one)s
 				renderer 	= new THREE.WebGLRenderer( { 
@@ -255,13 +261,13 @@
 				//      reproducing the Time Domain Data of the audio ('tdd').
 				function createLines()
 				{
-					var deltaPhi 	= 2*Math.PI / segments,
+					var deltaPhi 	= 2*Math.PI / numWaves,
 						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
 						tdd_size 	= tdd.length,
 						pickRate    = 32, 
 						delta_x		= (2*radius + 6) / tdd_size * pickRate;
 
-					for (var j = 0; j < segments; j++)
+					for (var j = 0; j < numWaves; j++)
 					{
 						var splineCurve,
 							linePoints,
@@ -299,15 +305,15 @@
 
 						wave.geometry.computeBoundingSphere();
 
+						// Save the wave for further use
 						waves.push(wave);
 
+						// Add it to the scene
 						sphere.add(wave);
-
 
 						// Get the next angle
 						nextAngle += deltaPhi;
 					}
-
 					wavesCreated = true;
 				};
 
@@ -317,11 +323,6 @@
 				{
 					var sphereFaces,
 						sphereMaterial,
-
-						cubeSize 		= 8,
-						  cube_L_coef     = 1.6,
-						  cube_l_coef 	  = 0.5,
-						  cube_h_coef     = 0.85,
 
 						cubeHalfSize 	= cubeSize / 2,
 
@@ -413,8 +414,8 @@
 						// Add the new cube to the scene
 						sphere.add(cube);
 					};
-					numCubes = cubes.length;
-
+					numCubes 	= cubes.length;
+					cube_l_coef = cube_L_coef = cube_h_coef = 0.0;
 
 					//#########################//
 					//#### PARTICLE SYSTEM ####//
@@ -443,7 +444,7 @@
 					particleGeometry = new THREE.Geometry();
 
 					// Create and add the particles' vectors to the geometry
-					var rand_x, rand_y, rand_z, no_particle_space = 1.0 * camera.position.z;
+					var rand_x, rand_y, rand_z
 					for (var i=0; i < numParticles; i++) 
 					{
 						do {
@@ -569,6 +570,9 @@
 				// Create the wave lines
 				createLines();
 
+				// Call the GUI controller
+				guiController();
+
 			}; // --- END init() --- //
 
 
@@ -607,7 +611,9 @@
 						fft_index 	= i % fft_size;
 
 						// Scale the cube high as the i-th peaks amplitude (demo 1)
-						cube.scale.z = cube.scaleValue + ( (peaks[fft_index])  ?  1 + (3 * (fft[fft_index] / peaks[fft_index]))  :  0);
+						cube.scale.z = cube.scaleValue + cube_h_coef + ( (peaks[fft_index])  ?  1 + (3 * (fft[fft_index] / peaks[fft_index]))  :  0);
+						cube.scale.y = cube.scaleValue + cube_L_coef;
+						cube.scale.x = cube.scaleValue + cube_l_coef;
 					}
 
 					// Lines points update as 'tdd' variates //
@@ -644,7 +650,7 @@
 
 			function updateLines()
 				{
-					var deltaPhi 	= 2*Math.PI / segments,
+					var deltaPhi 	= 2*Math.PI / numWaves,
 						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
 						tdd_size 	= tdd.length,
 						pickRate    = 32,
@@ -721,21 +727,134 @@
 					return c;
 				};
 
+				var controller = {
+						setDefault 			: function(){ setDefaultParams(); },
+						changeWavesColor	: function(){ changeWavesColor=true; },
+						Zoom_Out_OnOff 		: function(){ 
+							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity; 
+						},
+						smoothness 			: 0.0,
+						AudioVolume 		: 1.0,
+						cubeScale_L 		: 0.0,
+						cubeScale_l 		: 0.0,
+						cubeScale_h 		: 0.0
+					},
+					guiBackup;
+
+
+				// GUI controller
+				function guiController()
+				{
+					gui = new dat.GUI({
+								closeOnTop 	: true,
+								width 		: 236,
+								load 		: getPresetJSON(),
+								preset 		: 'Preset1' 
+							});
+
+					gui.remember(controller);
+
+					var f1 = gui.addFolder('Audio'); 		f1.open();
+					f1.add(controller, "smoothness", 0.0, 1.0, 0.01).onChange(function()
+					{
+						analyser.smoothingTimeConstant = controller.smoothness;
+					});
+					f1.add(controller, "AudioVolume", 0.0, 1.0, 0.01).onChange(function()
+					{ 
+						wavesurfer.setVolume(controller.AudioVolume);
+					}); 
+
+
+					var f2 = gui.addFolder('Wave Lines');
+					f2.add(controller, "changeWavesColor");
+
+
+					var f3 = gui.addFolder('Cubes/Bars'); 	f3.open();
+					f3.add(controller, "cubeScale_L", -1.0, 1.0, 0.005).onChange(function()
+					{
+						cube_L_coef = controller.cubeScale_L;
+					});
+					f3.add(controller, "cubeScale_l", -1.0, 1.0, 0.005).onChange(function()
+					{
+						cube_l_coef = controller.cubeScale_l;
+					});
+					f3.add(controller, "cubeScale_h", -3.0, 3.0, 0.005).onChange(function()
+					{
+						cube_h_coef = controller.cubeScale_h;
+					});
+
+
+					gui.add(controller, "Zoom_Out_OnOff");
+					gui.add(controller, "setDefault");
+
+
+					guiBackup = gui.getSaveObject();
+					gui.load  = guiBackup;
+
+					// presetJSON: created from pressing the gear.
+					function getPresetJSON() {
+						return {
+							  "preset": "Preset1",
+							  "closed": false,
+							  "remembered": {
+							    "Default": {
+							      "0": {
+							        "type1_boolean": false,
+							        "type2_string": "string",
+							        "type3_number": 0
+							      },
+							      "1": {
+							        "string1": "string1",
+							        "string2": "string2"
+							      }
+							    },
+							    "Preset1": {
+							      "0": {
+							        "AudioVolume": 1,
+							        "cubeScale_L": 0,
+							        "cubeScale_l": 0,
+							        "cubeScale_h": 0
+							      }
+							    }
+							  },
+							  "folders": {
+							    "Audio": {
+							      "preset": "Default",
+							      "closed": false,
+							      "folders": {}
+							    },
+							    "Wave Lines": {
+							      "preset": "Default",
+							      "closed": true,
+							      "folders": {}
+							    },
+							    "Cubes/Bars": {
+							      "preset": "Default",
+							      "closed": false,
+							      "folders": {}
+							    }
+							  }
+							};
+					}; // --- END getPresetJSON() --- //
+
+				}; // --- END guiController() --- //
+
+
 				// Set default parameters
 				function setDefaultParams()
 				{
-					smoothingTimeConstantFFT 	= 0.0;
+					analyser.smoothingTimeConstant 	= 0.0;
 
 					numParticles 	= 1400;
 					
 					cubeSize 		= 8;
-					cube_L_coef		= 1.6;
-					cube_l_coef 	= 0.5;
-					cube_h_coef		= 0.85;
+					cube_L_coef		= 0; //1.6;
+					cube_l_coef 	= 0; //0.5;
+					cube_h_coef		= 0; //0.85;
 
 					camera.position.z = 540;
 					controls.update();
-				}
+				};
 
 		</script><!--  --- END MAIN script ---  -->
 	</body>
