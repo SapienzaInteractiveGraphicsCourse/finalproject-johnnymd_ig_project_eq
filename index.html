@@ -92,6 +92,8 @@
 				rings 		= 64,
 				segments	= 8,
 
+				alpha_texture_path = 'img/stripes_alpha_texture_3.png';
+
 				numWaves 	= segments,
 				waves 		= [],
 				sampleRate 	= 0.04,					// spline curve sample rate for wave lines building
@@ -188,7 +190,6 @@
 
 				controls.update();
 
-
 				//#########################//
 				//#### 	   STATS.js    ####// 
 				//#########################//				
@@ -250,6 +251,22 @@
 
 					});
 
+				// Create two animated spiral spheres to be included on the poles of the main sphere 
+				function createSpiralSpheres()
+				{
+					// Create the material
+					var material = new THREE.MeshStandardMaterial({
+											side        : THREE.DoubleSide, 		// we need to enable the double side rendering; 	
+											color       : 0x000000,
+											transparent : true,
+											alphaTest   : 0.5
+										});
+
+					// Load and setup the alpha texture image
+					var alphaTexture = new THREE.TextureLoader();
+					alphaTexture.load(alpha_texture_path);
+				}
+
 
 				// Creates the main sphere //
 				function createSphere() 
@@ -270,7 +287,8 @@
 											wireframe   : true,
 											transparent	: true,  
 											flatShading	: true, 
-											opacity    	: 0.016
+											opacity    	: 0.016,
+											fog 		: false 	// we have black fog in the scene
 										})
 								 );
 					// Add the sphere to the scene
@@ -301,7 +319,8 @@
 											wireframe   : false,
 											flatShading	: true,  
 											transparent	: true,  
-											opacity    	: 0.68
+											opacity    	: 0.68,
+											fog 		: false 	// we have black fog in the scene
 									})
 								);
 
@@ -738,7 +757,8 @@
 							changeWavesColor = true;
 						},
 						ZOOM_OUT__ON_OFF 		: function(){ 
-							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity; 
+							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity;
+							if (controls.maxDistance === no_particle_space  &&  Math.abs(camera.position.z) > no_particle_space) camera.position.z = no_particle_space;
 						},
 						smoothness 			: 0.0,
 						PeaksTresholdUpdate	: 10.0,
@@ -802,7 +822,7 @@
 
 
 					gui.add(controller, "ZOOM_OUT__ON_OFF");
-					
+
 				}; // --- END guiController() --- //
 
 					// presetJSON: created from pressing the gear.
