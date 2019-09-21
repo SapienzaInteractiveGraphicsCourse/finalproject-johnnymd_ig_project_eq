@@ -52,3 +52,57 @@ Controls:
     }
   }
 }
+
+
+{
+  "preset": "RocketPrest",
+  "closed": false,
+  "remembered": {
+    "Default": {
+      "0": {
+        "type1_boolean": false,
+        "type2_string": "string",
+        "type3_number": 0
+      },
+      "1": {
+        "string1": "string1",
+        "string2": "string2"
+      }
+    },
+    "BestPreset": {
+      "0": {
+        "AudioVolume": 1,
+        "cubeScale_L": 0,
+        "cubeScale_l": 0,
+        "cubeScale_h": 0
+      }
+    },
+    "RocketPrest": {
+      "0": {
+        "smoothness": 0,
+        "PeaksTreshold": -230,
+        "AudioVolume": 1,
+        "cubeScale_L": 0,
+        "cubeScale_l": 0,
+        "cubeScale_h": 0
+      }
+    }
+  },
+  "folders": {
+    "Audio": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
+    "Wave Lines": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
+    "Cubes/Bars": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    }
+  }
+}
