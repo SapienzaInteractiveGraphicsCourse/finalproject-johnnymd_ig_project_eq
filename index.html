@@ -854,7 +854,8 @@
 								closeOnTop 	: false,
 								width 		: 300,
 								load 		: getPresets(),
-								preset 		: 'BestPreset' 
+								preset 		: 'BestPreset',
+								closed 		: true
 							});
 
 					gui.remember(controller);
@@ -930,8 +931,8 @@
 					// presetJSON: created from pressing the gear.
 					function getPresets() {
 						return {
-							  "preset": "RocketPreset",
-							  "closed": false,
+							  "preset": "BestPreset",
+							  "closed": true,
 							  "remembered": {
 							    "Default": {
 							      "0": {
@@ -939,6 +940,12 @@
 							        "PeaksTresholdUpdate": 10,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
+							        "BounceSpeed": 0.23,
+							        "NorthColor": "#0101FC",
+							        "SouthColor": "#FC0101",
+							        "NorthIntensity": 30,
+							        "SouthIntensity": 30,
+							        "SetSideRengering": 2,
 							        "cubeScale_L": 0,
 							        "cubeScale_l": 0,
 							        "cubeScale_h": 0
@@ -950,6 +957,12 @@
 							        "PeaksTresholdUpdate": 10,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
+							        "BounceSpeed": 0.23,
+							        "NorthColor": "#0101FC",
+							        "SouthColor": "#FC0101",
+							        "NorthIntensity": 30,
+							        "SouthIntensity": 30,
+							        "SetSideRengering": 2,
 							        "cubeScale_L": 0,
 							        "cubeScale_l": 0,
 							        "cubeScale_h": 0
@@ -961,6 +974,12 @@
 							        "PeaksTresholdUpdate": -230,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
+							        "BounceSpeed": 0.23,
+							        "NorthColor": "#0101FC",
+							        "SouthColor": "#FC0101",
+							        "NorthIntensity": 30,
+							        "SouthIntensity": 30,
+							        "SetSideRengering": 2,
 							        "cubeScale_L": 0,
 							        "cubeScale_l": 0,
 							        "cubeScale_h": 0
@@ -973,9 +992,9 @@
 							      "closed": false,
 							      "folders": {}
 							    },
-							    "Wave Lines": {
+							    "Colors and Light": {
 							      "preset": "Default",
-							      "closed": true,
+							      "closed": false,
 							      "folders": {}
 							    },
 							    "Cubes/Bars": {
