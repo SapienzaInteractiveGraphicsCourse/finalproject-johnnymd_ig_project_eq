@@ -108,6 +108,8 @@
 				segments	= 8,
 
 				alpha_texture_path = 'img/stripes_alpha_texture_3.png',
+				// Load the alpha texture image 
+				alphaTexture= new THREE.TextureLoader().load(alpha_texture_path);
 				spiralSphereNorth,
 				spiralSphereSouth,
 				radiusSS 		= 16,
@@ -458,7 +460,7 @@
 					
 					// Create the material for the spiral sphere
 					var material = new THREE.MeshStandardMaterial({
-											side        : THREE.DoubleSide, 		// back side rendering; 	
+											side        : THREE.DoubleSide, // both side rendering;	
 											color       : 0x000000,
 											lights 		: true,
 											transparent : true,
