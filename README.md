@@ -307,7 +307,11 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 ### The Renderer
 
-The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)).
+The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)). 
+
+Note that some of the properties a updated out of the renderer when some events occurs and are managed by certain handlers. This is the case of the  *Control Panel GUI*  components.
+
+ 
 
 .	.	.
 
