@@ -30,6 +30,26 @@ Ok... that was the dream. Now it’s true !
 
 
 
+#### Browser Support
+
+The project design was focused to run with good performance on **Chrome** browser, but have also good performance on other browsers.
+
+During the development the project was tested and developed with the Chrome browser (sometimes tested also on Firefox browser) (`50-60 FPS`).
+
+Final version tested successfully on both Chrome and Firefox browsers on local server.
+
+Instead, online, on GitHub pages, we have dropdown in terms of FPS for the Firefox browser(`25-30 FPS`).
+
+<u>SW Versions</u>: 
+
+-   **Chrome** **77.0.3865.90 (64-bit)** (on Windows PC)  and  **Chrome 77.0.3865.92**  (64-bit)(on Android smartphone);
+
+-   **Firefox 69.0.1 (64 bit)** (*Quantum*) (on Windows PC);
+
+>   So, please, try it on Chrome browser for a better experience.
+
+
+
 #### *Wiki How* of the player
 
 ![Help insights](img//Demo4__Controls_Updated.png)
@@ -40,13 +60,13 @@ Ok... that was the dream. Now it’s true !
 
 #### *Wiki How* Control Panel GUI
 
-Clicking on *Open Controls*, the Control Panel GUI will be displayed. You can play with some audio or lights parameters, change the *wave lines* colors or tune new dimensions for the cubes/bars around the *Main Sphere*. 
+Clicking on *Open Controls*, the Control Panel GUI will be displayed. You can play with some audio or lights parameters, change the *wave lines* colors or tune new dimensions for the cubes/bars around the *Main Sphere* and see the immediate result of your changes (select the **DefaultPreset** or **BetsPreset** to restore the default configurations).
 
 Also if you are curious to see the view from infinity, click/tap on `ZOOM-OUT` button (switch it back to stay with the camera in the *good* *zone*).
 
 In the <u>top-left corner</u> of the controls you can save and select the current configurations/values of the GUI controller. If, playing around with the controls, you found a interesting setup for you visualization - save it - or make screenshot. Also, I will be really happy to enjoy what you found. So, please share it with me. 
 
-That’s actually haw I found, by case,  ***The RocketPreset***  that you can select from the menu (when some music is playing). 
+That’s actually haw I found, by case,  ***The RocketPreset***  that you can select from the menu (when some music is playing).
 
 
 
@@ -106,10 +126,10 @@ Main objects included in the Project:
 
 >   **<u>REQUIREMENTS</u>**: **Depends on your theme, as an example: *turn on/off lights*, *change viewpoint*, *configure colors*, *change difficulty*,** . . . 
 
--   The Project have Control Panel GUI, where some of the objects’ properties could be modified, observing the immediate feedback ( around 15 different actions just on the Control Panel GUI);
+-   The Project have a Control Panel GUI, where some of the objects’ properties could be modified, observing the immediate feedback ( around 15 different actions just on the Control Panel GUI);
 
--   You can use your mouse and keyboard, the touchpad or touchscreen (depending on the device) to move the camera inside the scene;
-    
+- You can use your mouse and keyboard, the touchpad or touchscreen (depending on the device) to move the camera inside the scene;
+- Obviously you can drag and drop in the project window new audio files to be played (even folders if on Chrome browser).
 
 
 
