@@ -199,6 +199,56 @@ The things I changed respect to the original demo consists in:
 
 
 
+##### The Web Audio API use
+
+We make use of the [Analyser Node](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) of the Web Audio API context. We get the node from the *Wavesurfer* object of the Player:
+
+```javascript
+	// Get the wavesurfer's analyser node object
+	analyser 	= wavesurfer.backend.analyser;
+```
+
+ After we are interested to get the Time and Frequency Domain Data (javascript arrays):
+
+ FFT (Fourier Fast Transform) algorithm is used to for the discrete Frequency Domain Data. 
+
+Time Domain Data (tdd) comes directly from the *analyser* and `peaks`  array, used for the *Wave Lines*  <u>animation</u>, is updated consequently (`onAudioAvailable()`). So, on frame render time we can update the lines (see below *The Wave Lines* section).
+
+```javascript
+// 'audioprocess' event fires continuously as the audio plays. Also fires on seeking.
+wavesurfer.on('audioprocess', function(e) {
+    // update the 'fft' and 'tdd' arrays
+	analyser.getByteFrequencyData(	fft  );
+	analyser.getByteTimeDomainData(	tdd );
+
+	// update the peaks array
+	onAudioAvailable();
+});
+
+// 		.	.	.
+
+// 'channelCountMode' is set to 'explicit' on an analyserNode,
+// so we can get the correct # of channels of the AudioNode in input 
+numChannels = analyser.channelCount;
+
+// Set the FFT size (default fftSize=2048)(powers of 2)
+//         (fft scale to one channel size)
+analyser.fftSize = fftSize * numChannels;
+
+// FFT time averaging (0 meaning no time averaging). The default value is 0.8;
+analyser.smoothingTimeConstant = smoothingTimeConstantFFT; // set to 0.26 
+
+// Initialize the buffers for the Frequency and Time Domain Data:
+//     (it will be updated on 'onaudioprocess' event firing)
+fft 		= new Uint8Array(analyser.frequencyBinCount);
+tdd 		= new Uint8Array(analyser.fftSize);
+// 		. 	.	.
+```
+
+
+
+
+
 ### The Wave Lines
 
 *The Wave Lines* (***time domain representation of the signal wave***) are generated  (and updated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*. From this array is created a buffer with `THREE.Vector2()` points (we need just x-offset on the line and y-offset for the high), that is used to create `new THREE.SplineCurve()` that give us a smooth and round curve. For efficiency reasons the `SplineCurve` is not rendered, but we can sample a smaller set of points from it in order to create a simple `BasicMaterial` line. Much more efficient computationally.
