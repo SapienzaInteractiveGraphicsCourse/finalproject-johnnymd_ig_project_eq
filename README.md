@@ -14,7 +14,7 @@ One person (just me).
 
 
 
-#### - The Story  -  Project theme
+#### - The Story  -  The Project Theme
 
 >   TO DO
 
