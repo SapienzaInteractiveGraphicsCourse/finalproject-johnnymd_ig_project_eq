@@ -312,4 +312,6 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 The code is well commented. So for further details about the implementation consult the source code.
 
-Also a good view about the development process could be seen in the commits trace. 
+Also a good view about the development process could be seen in the commit trace.
+
+For other question, please, contact me.
