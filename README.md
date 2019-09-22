@@ -76,7 +76,7 @@ Main objects included in the Project:
 
 #### <u>--- **User Interaction** ---</u>
 
->   **<u>REQUIREMENTS</u>**: **Depends on your theme, as an example: *turn on/off lights*, *change viewpoint*, *configure colors*, *change difficulty*, ** . . . 
+>   **<u>REQUIREMENTS</u>**: **Depends on your theme, as an example: *turn on/off lights*, *change viewpoint*, *configure colors*, *change difficulty*,** . . . 
 
 -   The Project have Control Panel GUI, where some of the objects’ properties could be modified, observing the immediate feedback ( around 15 different actions just on the Control Panel GUI);
 
