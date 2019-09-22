@@ -30,7 +30,7 @@ Ok... that was the dream. Now it’s true !
 
 
 
-#### Browser Support
+#### Supported Browsers
 
 The project design was focused to run with good performance on **Chrome** browser, but have also good performance on other browsers.
 
