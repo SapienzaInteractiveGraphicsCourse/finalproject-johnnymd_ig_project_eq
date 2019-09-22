@@ -10,13 +10,20 @@
 
 2. **Can be done in groups of 1 to 4 persons;** 
 
-   One person in this case (just me).
+   One person (just me).
 
    
 
 3. **You can use «basic» WebGL or advanced libraries, such as [ThreeJS](http://threejs.org/) or [Babylon](http://babylonjs.com/) or others (in this case they must be approved);** 
 
-   > TODOS
+   The project is based on **ThreeJS** JavaScript 3D library (with a default WebGL renderer).
+
+   The project also make use of additional JavaScript libraries, like:
+
+   -   [Stats.JS](https://github.com/mrdoob/stats.js/)  -  Performance Monitor for JavaScript ;
+   -   [dat.GUI](https://github.com/dataarts/dat.gui)  -  Lightweight controller library for JavaScript (used for the application’s Control Panel Design);
+   -   [Wavesurfer.JS](https://wavesurfer-js.org/)  -  a customizable audio waveform visualization, built on top of [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [HTML5 Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) (used for the HTML5 audio player core design and functionalities);
+   -   [id3.js](https://github.com/43081j/id3)  -  Javascript ID3 tag parser for audio files (used by the HTML5 audio player);
 
    
 
