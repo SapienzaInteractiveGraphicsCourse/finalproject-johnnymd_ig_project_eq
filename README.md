@@ -310,3 +310,6 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 >   [Web Demo ](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/)
 
+The code is well commented. So for further details about the implementation consult the source code.
+
+Also a good view about the development process could be seen in the commits trace. 
