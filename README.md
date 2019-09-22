@@ -4,6 +4,8 @@
 
 
 
+[TOC]
+
 ## Project requirements:
 
 ### - The Project Manager
