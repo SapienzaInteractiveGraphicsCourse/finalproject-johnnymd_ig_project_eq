@@ -18,7 +18,19 @@ One person (just me).
 
 ### - The Story  -  The Project Theme
 
->   TO DO
+This project consists in building an **Audio Visualizer**, like thus of modern Media Players application, to be integrated in a music player build on top of the *[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)*. 
+
+The idea have the roots deep in my childhood, when I was exploring the digital world on my first desktop computer, when I for the first time was looking through the visualizations of my media player, wandered and curious about how it works and how they build that. 
+
+And here we are... Now I have (hope almost) all the ingredients to build a good one by myself. About the power, design and functionalities of the current audio standard for the web - Web Audio API - I read recently in some interesting articles on *[Medium](https://medium.com/)*. I wanted to build something that I could use in the future, something practical, not just a 3D visualization. So, the intent was to create a web audio player running on the browser (nowadays almost all the computers have a browser) , a good one, where you can easily **drag and play** your music enjoying the nice visualization born in your mind and created with passion. 
+
+Ok... that’s was the dream. Now it’s true ! 
+
+[Enjoy the music](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/ )  !
+
+
+
+>   There are already some tracks, uploaded by default for my personal library. Hope you will appreciate the default playlist. Anyway, you can **drag and drop** your own music files (even folders in the Chrome browser) to be played immediately.
 
 
 
