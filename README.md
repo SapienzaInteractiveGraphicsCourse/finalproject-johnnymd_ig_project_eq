@@ -307,6 +307,24 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 ### The Renderer and The Animations
 
+```javascript
+// Set the camera (initial) position 
+camera.position.z = no_particle_space;			// move backward
+	
+// Create the renderer and camera (the WebGL one)s
+renderer 	= new THREE.WebGLRenderer( { 
+					antialias      	: true, 	// default false
+					alpha 			: false,	// default false
+					depth 			: true, 	// default true
+					powerPreference	: 'high-performance',
+					shadowMapEnable : true,
+					physicallyCorrectLights : true
+				} );
+// START the (WebGL) renderer
+renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setSize( sceneWidth, sceneHeight );
+```
+
 The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)). The  `render()`  function updates the cubes’  `scale`  properties on the base of the `ftt`  array data content (Frequency Domain Data after Fourier Fast Transform algorithm was applied) and the coefficients and parameters updated by the user in the *Control Panel GUI*.
 
 Note that some of the properties are updated out of the renderer when some events occurs and are managed by certain handlers. This is the case of the  *Control Panel GUI*  components.
@@ -328,11 +346,11 @@ materials[i] = new THREE.PointsMaterial( {size : size,  sizeAttenuation : true} 
 
 Note that the fog  `intensity`  and  `sizeAttenuation`  properties are correlated.
 
- 
+Note also that the  `alpha`  property of the rendered is setted to  `false` . That gives a black background in the scene and limit some light effects. 
 
+Also, setting the  `antialias`  to  `true`  enables **antialiasing**, that is crucial for the final result quality of the visualizations.
 
-
-
+The Camera movement in the scene is managed by the famous Three.JS  ***OrbitControls***   object;
 
 .	.	.
 
