@@ -326,7 +326,7 @@ scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 ); // (color, intensity)
 materials[i] = new THREE.PointsMaterial( {size : size,  sizeAttenuation : true} );
 ```
 
-Note that fog  `intensity`  and  `sizeAttenuation`  properties are corelated.
+Note that the fog  `intensity`  and  `sizeAttenuation`  properties are correlated.
 
  
 
