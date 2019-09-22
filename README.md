@@ -1,12 +1,12 @@
-## Interactive Graphics  -  Final Project  -  2019  -  [Web Demo](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/)
+# Interactive Graphics  -  Final Project  -  2019  -  [Web Demo](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/)
 
 >   La Sapienza - University of Rome
 
 
 
-### Project requirements:
+## Project requirements:
 
-#### - The Project Manager
+### - The Project Manager
 
 >   <u>**REQUIREMENTS**</u>: **Can be done in groups of 1 to 4 persons.**
 
@@ -14,13 +14,13 @@ One person (just me).
 
 
 
-#### - The Story  -  The Project Theme
+### - The Story  -  The Project Theme
 
 >   TO DO
 
 
 
-#### - Used libraries
+### - Used libraries
 
 >   <u>**REQUIREMENTS**</u>: **You can use «basic» WebGL or advanced libraries, such as [ThreeJS](http://threejs.org/) or [Babylon](http://babylonjs.com/) or others (in this case they must be approved).**
 
@@ -35,7 +35,7 @@ The project also make use of other additional JavaScript libraries, like:
 
 
 
-#### - Models use Policy
+### - Models use Policy
 
 >   **<u>REQUIREMENTS</u>**: **You can use models created with a modeler or found online. YOU CANNOT IMPORT ANIMATIONS**.
 
@@ -43,9 +43,9 @@ NO models or animations was imported in this project.
 
 
 
-#### - Project Content
+### - Project Content
 
-##### <u>--- **Hierarchical models** ---</u>
+#### <u>--- **Hierarchical models** ---</u>
 
 >   **Must include at least one <u>and</u> more complex of the model used in *<u>homework2</u>***.
 
@@ -59,7 +59,7 @@ Main objects included in the Project:
 
 
 
-##### <u>--- **Lights and Textures** ---</u>
+#### <u>--- **Lights and Textures** ---</u>
 
 >   **<u>REQUIREMENTS</u>**: **At least one light, textures of different kinds (*color*, *normal*, *specular*, ... )**:
 
@@ -73,7 +73,7 @@ Main objects included in the Project:
 
 
 
-##### <u>--- **User Interaction** ---</u>
+#### <u>--- **User Interaction** ---</u>
 
 >   **<u>REQUIREMENTS</u>**: **Depends on your theme, as an example: *turn on/off lights*, *change viewpoint*, *configure colors*, *change difficulty*, ** . . . 
 
@@ -84,7 +84,7 @@ Main objects included in the Project:
 
 
 
-##### <u>--- **Animations** ---</u>
+#### <u>--- **Animations** ---</u>
 
 >   **<u>REQUIREMENTS</u>**: Most objects should be animated, in particular the hierarchical models should perform animations that exploit their structure. ANIMATIONS CANNOT BE IMPORTED, should be implemented by you in javascript (WebGL, ThreeJS or other approved library).
 
