@@ -162,8 +162,8 @@
 
 			function init()
 			{	
-				// Load the default songs in the playlist asynchronously (just the first two for now)
-				createDefaultPlaylist( audio_path, audio_list.slice(0, 2) );
+				// Load the default songs in the playlist asynchronously
+				createDefaultPlaylist( audio_path, audio_list );
 
 				// Get the DOM element where to display
 				display = document.getElementById("animate"); 
@@ -661,9 +661,6 @@
 
 				// Create the wave lines
 				createLines();
-
-				// Load the rest of the playlist
-				createDefaultPlaylist(audio_path, audio_list.slice(2));
 
 				// Call the animate() routine
 				animate();
