@@ -305,7 +305,7 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 
 
-### The Renderer
+### The Renderer and The Animations
 
 The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)). The  `render()`  function updates the cubes’  `scale`  properties on the base of the `ftt`  array data content (Frequency Domain Data after Fourier Fast Transform algorithm was applied) and the coefficients and parameters updated by the user in the *Control Panel GUI*.
 
@@ -314,6 +314,8 @@ Note that some of the properties are updated out of the renderer when some event
 Getting back to the renderer... 
 
 The render updates also the *Spiral Spheres’*  y-position based on the (updated) average of the `tdd` array (`tddAvg`) that is normalized with the `offsetUpdateSpeed = 0.23` parameter.  In this way we have a bouncing vibration animation of the *Spiral Spheres* and of the corresponding two point lights added to them. 
+
+The *Particle Systems* are animated by updating their  `rotation`  properties usingb the *cos()* and *sen()*  functions combined with the  `time`   and  using loop index to make different *Particles Systems* behave differently.
 
  
 
@@ -326,7 +328,7 @@ The render updates also the *Spiral Spheres’*  y-position based on the (update
 
 >   [Web Demo ](https://sapienzainteractivegraphicscourse.github.io/finalproject-johnnymd_ig_project_eq/)
 
-The code is well commented. So for further details about the implementation consult the source code.
+The source code is well commented. So for further details about the implementation consult the source code.
 
 Also a good view about the development process could be seen in the commit trace.
 
