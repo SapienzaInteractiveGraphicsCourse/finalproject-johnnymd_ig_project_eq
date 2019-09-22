@@ -307,6 +307,8 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 ### The Renderer
 
+The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)).
+
 .	.	.
 
 
