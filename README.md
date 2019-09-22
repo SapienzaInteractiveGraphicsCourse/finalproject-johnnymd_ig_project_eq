@@ -305,6 +305,12 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 
 
+### The Renderer
+
+.	.	.
+
+
+
 ## Demo
 
 
