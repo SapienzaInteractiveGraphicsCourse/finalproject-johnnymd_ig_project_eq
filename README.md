@@ -242,10 +242,7 @@ analyser.smoothingTimeConstant = smoothingTimeConstantFFT; // set to 0.26
 //     (it will be updated on 'onaudioprocess' event firing)
 fft 		= new Uint8Array(analyser.frequencyBinCount);
 tdd 		= new Uint8Array(analyser.fftSize);
-// 		. 	.	.
 ```
-
-
 
 
 
