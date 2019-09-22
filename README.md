@@ -156,10 +156,46 @@ The Audio Player of the project is based on and inspired by a  *[Wavesurfer.JS](
 The things I changed respect to the original demo consists in:
 
 -   Restyling some of the player components (see `style/player-style/style.css`);
--   Added some extra functionalities to the player:
-    1.  function createDefaultPlaylist
 
+-   Added a new extra functionality to the player:
 
+    -   The function  `createDefaultPlaylist(path, songs_list)`  which asynchronously loads the default songs list from the hosting server, making use of a `new XMLHttpRequest();` per file, was integrated in the player’s script (`Common/player_script.js  -  line 88`).
+
+        ```javascript
+        function createDefaultPlaylist(audio_path, songs_list) {
+        	var len 		= songs_list.length;
+        	for (var j = len - 1; j >= 0; j--) {
+        		// Sound Url
+        		var soundUrl = audio_path + songs_list[j];
+        
+        		// Create request to load the song from address
+        		var request = new XMLHttpRequest();
+        		request.open("GET", soundUrl, true);
+        
+        		// Obtain as a blob object
+        		request.responseType = "blob";
+        
+        		// Send request and save it
+        		request.onload = function(e){
+        			if (this.status == 200) { 	// success
+        				getID3Data(new Blob([this.response], {type: 'audio/mpeg'}),  function (song) {
+        					allTracks.push(song);
+        					playlist.push(song);
+        				$('#list').append($(returnTrackHTML(song, playlist.length-1)));
+        				});
+        			}
+        		};
+        		// Send the XMLHttpRequest
+        		request.send();
+        	}
+        }
+        ```
+
+        
+
+    -   Note that the loading process of drag and drop of the files is much faster due to their local storing and processing;
+
+-   HTML content was modified in order to make space for the visualization canvas;
 
 
 
