@@ -56,8 +56,7 @@ Main objects included in the Project:
 
   -   *The Main Sphere* hierarchical object (*one sphere + one cube per sphere face + set of lines (original design approach) + 2 smaller spheres with alpha textures*);
 
-  -   A set of particular *Particle Systems* with different properties that are composing the environment  where *The Main Sphere* is immersed (background);
-  -   A set of *Wave Lines* (**time domain representation of the signal**); 
+  -   A set of particular *Particle Systems* with different properties that are composing the environment  where *The Main Sphere* is immersed (background); 
 
 
 
@@ -71,7 +70,7 @@ Main objects included in the Project:
 
 *The Spiral Spheres* are two almost identical meshes created from two sphere geometries with an **alpha texture** (particular *alphaMap* settings ), animated by changing the texture offsets, are added to *The Main Sphere* hierarchical object with a **Point Light** inside each (*DoubleSide* *Rendering*  -  `THREE.MeshStandardMaterial()`) .
 
-*The Wave Lines* are generated (and regenerated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*...
+*The Wave Lines* (***time domain representation of the signal***) are generated  (and updated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*...
 
 
 
