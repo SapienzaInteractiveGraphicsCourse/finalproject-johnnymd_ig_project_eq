@@ -4,9 +4,9 @@
 
 ### Project requirements:
 
-1. **Project theme (*personal choice*);** 
+1. **Project theme (*personal choice*)**  -  **The Story**;
 
-   > TODOS
+   
 
    
 
@@ -24,8 +24,8 @@
 
    -   [Stats.JS](https://github.com/mrdoob/stats.js/)  -  Performance Monitor for JavaScript ;
    -   [dat.GUI](https://github.com/dataarts/dat.gui)  -  Lightweight controller library for JavaScript (used for the application’s Control Panel Design);
-   -   [Wavesurfer.JS](https://wavesurfer-js.org/)  -  a customizable audio waveform visualization, built on top of [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [HTML5 Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) (used for the HTML5 audio player core design and functionalities);
-   -   [id3.js](https://github.com/43081j/id3)  -  Javascript ID3 tag parser for audio files (used by the HTML5 audio player);
+   -   [Wavesurfer.JS](https://wavesurfer-js.org/)  -  a customizable audio waveform visualization, built on top of [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [HTML5 Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) (used for the <u>HTML5 audio player</u> core design and functionalities);
+   -   [id3.js](https://github.com/43081j/id3)  -  Javascript ID3 tag parser for audio files (used by the <u>HTML5 audio player</u>);
 
    
 
