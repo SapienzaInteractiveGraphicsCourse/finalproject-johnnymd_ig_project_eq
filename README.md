@@ -38,19 +38,15 @@
    - **Hierarchical models:** 
 
      -   [x] At least one <u>and</u> more complex of the model used in *<u>homework2</u>*:
-
+      -   *The Main Sphere* hierarchical object;
+         -   A set of particular *Particle Systems* with different properties that are composing the environment  where *The Main Sphere* is immersed (background).
    
-     -   *The Main Sphere* hierarchical object;
-  -   A set of particular *Particle Systems* with different properties that are composing the environment  where *The Main Sphere* is immersed (background).
+  -   [x] **Lights and Textures:** 
+         -   At least one light, textures of different kinds (*color*, *normal*, *specular*, ... ):
+      -   Two almost identical meshes created from two sphere geometries with an **alpha texture**, animated by changing the texture offsets are added to *The Main Sphere* hierarchical object with a **Point Light** inside each (*DoubleSide* *Rendering Material*) .
    
-- **Lights and Textures:** 
+- **User interaction:**  
    
-  - At least one light, textures of different kinds (*color*, *normal*, *specular*, ... ):
-   
-       -   Two almost identical meshes created from two sphere geometries with an **alpha texture**, animated by changing the texture offsets are added to *The Main Sphere* hierarchical object with a **Point Light** inside each (*DoubleSide* *Rendering Material*) .
-  
-   - **User interaction:**  
-
      - Depends on your theme, as an example: *turn on/off lights*, *change viewpoint*, *configure colors*, *change difficulty*, ... :
 
        -   The Project have Control Panel GUI, where some of the objects’ properties could be modified, observing the immediate feedback ( around 15 different actions just on the Control Panel GUI);
@@ -62,7 +58,7 @@
    
   - Most objects should be animated, in particular the hierarchical models should perform animations that exploit their structure. ANIMATIONS CANNOT BE IMPORTED, should be implemented by you in javascript (WebGL, ThreeJS or other approved library):
    - NO imported animations;
-       - The Particle Systems, each centered in the origin of *The Main Sphere*, performs simple smooth rotations;
+    - The Particle Systems, each centered in the origin of *The Main Sphere*, performs simple smooth rotations;
        - Actions on different components of the hierarchical structure of *The Main Sphere* are performed in synchrony with the *audio dynamics* from the audio data obtained from the [Analyser Node](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) of the Web Audio API audio context. The animation of this components are performed from different combinations of such actions (detailed explanation following bellow).
 
 
