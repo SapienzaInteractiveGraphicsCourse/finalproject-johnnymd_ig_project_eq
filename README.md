@@ -95,7 +95,21 @@ Main objects included in the Project:
 
 
 
-## Technical details of the main 
+
+
+## Technical Details
+
+### The Audio Player
+
+The Audio Player of the project is based on and inspired by a  *[Wavesurfer.JS](https://wavesurfer-js.org/)*  demo example that I adapted for my project. I chose this library because it’s build on top of the  *[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)*  that I needed for the visualization part of the project.
+
+The things I changed respect to the original demo consists in:
+
+-   Restyling some of the player components (see `style/player-style/style.css`);
+-   Added some extra functionalities to the player:
+    1.  function createDefaultPlaylist
+
+
 
 
 
