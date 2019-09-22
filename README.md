@@ -315,9 +315,24 @@ Getting back to the renderer...
 
 The render updates also the *Spiral Spheres’*  y-position based on the (updated) average of the `tdd` array (`tddAvg`) that is normalized with the `offsetUpdateSpeed = 0.23` parameter.  In this way we have a bouncing vibration animation of the *Spiral Spheres* and of the corresponding two point lights added to them. 
 
-The *Particle Systems* are animated by updating their  `rotation`  properties using the *cos()* and *sen()*  functions, combined with the  `time` variable  and  using the loop index to make different *Particles Systems* behave differently.
+The *Particle Systems* and the *Main Sphere* are animated also by updating their  `rotation`  properties using the *cos()* and *sen()*  functions, combined with the  `time` variable  and  using the loop index to make different *Particles Systems* behave differently. 
+
+To get the foggy effect of the particles in the background of the scene a `THREE.FogExp2()` [fog](https://threejs.org/docs/#api/en/scenes/FogExp2) was added to the scene. Note that just particles are affected by the fog.
+
+```javascript
+// add some fog in the scene (black fog)
+scene.fog = new THREE.FogExp2( 0x000000 , 0.00075 ); // (color, intensity)
+//				.	.	.
+materials[i] = new THREE.PointsMaterial( {size : size,  sizeAttenuation : true} );
+```
+
+Note that fog  `intensity`  and  `sizeAttenuation`  properties are corelated.
 
  
+
+
+
+
 
 .	.	.
 
