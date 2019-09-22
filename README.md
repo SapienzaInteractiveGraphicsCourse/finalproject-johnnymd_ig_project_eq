@@ -16,6 +16,8 @@ One person (just me).
 
 #### - The Story  -  Project theme
 
+>   TO DO
+
 
 
 #### - Used libraries
