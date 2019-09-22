@@ -11,10 +11,11 @@ body {
 	padding         : 0;
 	
     overflow 		: hidden;	
-	 
+	
 	background-color: #FCFCFC;
 	color 			: #494949;
 	
+	font-family: 	'Droid Serif', 'PT Serif', serif;
 	font-size       : 13px		!important;
 }
 
@@ -23,8 +24,17 @@ a:link {
     text-shadow 	: 0 0 1px rgba(0, 0, 0, 0.9);
 }
 
+#help-icon {	/*img*/
+	box-shadow: 0 0 1vmin rgba(26, 84, 102, 1.0);
+    border-radius: 49%;
+}
+#help-icon:hover {	/*img*/
+	box-shadow: 0 0 1.5vmin rgba(220, 10, 10, 1.0);
+    border-radius: 49%;
+}
+
 .dg .main {
-	margin-top   : 3px !important;
+	margin-top   : 14px !important;
 	margin-right : 3px !important;
 }
 
