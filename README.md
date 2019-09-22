@@ -87,11 +87,13 @@ Main objects included in the Project:
 
 #### <u>--- **Animations** ---</u>
 
->   **<u>REQUIREMENTS</u>**: Most objects should be animated, in particular the hierarchical models should perform animations that exploit their structure. ANIMATIONS CANNOT BE IMPORTED, should be implemented by you in javascript (WebGL, ThreeJS or other approved library).
+>   **<u>REQUIREMENTS</u>**: **Most objects should be animated, in particular the hierarchical models should perform animations that exploit their structure. ANIMATIONS CANNOT BE IMPORTED, should be implemented by you in javascript (WebGL, ThreeJS or other approved library)**.
 
  - NO imported animations;
  - The Particle Systems, each centered in the origin of *The Main Sphere*, performs simple smooth rotations;
  - Actions on different components of the hierarchical structure of *The Main Sphere* are performed in synchrony with the *audio dynamics* from the audio data obtained from the [Analyser Node](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) of the Web Audio API audio context. The animation of this components are performed from different combinations of such actions (detailed explanation following bellow).
+
+
 
 
 
