@@ -309,7 +309,11 @@ Note how create the second sphere, that is identical to the other, by using the 
 
 The renderer is responsible to update the objects properties and positions in the scene at each frame, taking the passed time in consideration, under certain conditions (`analyser`  availability,  conditions over data objects (`tdd` and `ftt`)). The  `render()`  function updates the cubes’  `scale`  properties on the base of the `ftt`  array data content (Frequency Domain Data after Fourier Fast Transform algorithm was applied) and the coefficients and parameters updated by the user in the *Control Panel GUI*.
 
-Note that some of the properties a updated out of the renderer when some events occurs and are managed by certain handlers. This is the case of the  *Control Panel GUI*  components.
+Note that some of the properties are updated out of the renderer when some events occurs and are managed by certain handlers. This is the case of the  *Control Panel GUI*  components.
+
+Getting back to the renderer... 
+
+The render updates also the *Spiral Spheres’*  y-position based on the (updated) average of the `tdd` array (`tddAvg`) that is normalized with the `offsetUpdateSpeed = 0.23` parameter.  In this way we have a bouncing vibration animation of the *Spiral Spheres* and of the corresponding two point lights added to them. 
 
  
 
