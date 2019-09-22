@@ -18,11 +18,11 @@ One person (just me).
 
 ### - The Story  -  The Project Theme
 
-This project consists in building an **Audio Visualizer**, like thus of modern Media Players application, to be integrated in a music player build on top of the *[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)*. 
+This project consists in building a *[Three.JS](http://threejs.org/)*  based   **Audio Visualizer**,  like thus of modern Media Players application, to be integrated in a music player build on top of the *[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)*. 
 
-The idea have the roots deep in my childhood, when I was exploring the digital world on my first desktop computer, when I for the first time was looking through the visualizations of my media player, wandered and curious about how it works and how they build that. 
+The idea have the roots deep in my childhood, when I was exploring the digital world on my first desktop computer, when for the first time I was looking through the visualizations of my media player, wandered and curious about how it works and how they build that. 
 
-And here we are... Now I have (hope almost) all the ingredients to build a good one by myself. About the power, design and functionalities of the current audio standard for the web - Web Audio API - I read recently in some interesting articles on *[Medium](https://medium.com/)*. I wanted to build something that I could use in the future, something practical, not just a 3D visualization. So, the intent was to create a web audio player running on the browser (nowadays almost all the computers have a browser) , a good one, where you can easily **drag and play** your music enjoying the nice visualization born in your mind and created with passion. 
+And here we are... Now I have (hope almost) all the ingredients to build a good one, by myself. About the power, design and functionalities of the current audio standard for the web - *Web Audio API* - I had read recently in some interesting articles on *[Medium](https://medium.com/)*. I wanted to build something that I could use in the future, something practical, not just a 3D visualization. So, the intent was to create a web audio player running on the browser (nowadays almost all the computers have a browser) , a good one, where you can easily **drag and play** your music, enjoying the nice visualization born in your mind and created with passion. 
 
 Ok... that was the dream. Now it’s true ! 
 
@@ -30,11 +30,23 @@ Ok... that was the dream. Now it’s true !
 
 
 
-***Wiki How* of the player**: 
+#### *Wiki How* of the player
 
 ![Help insights](img//Demo4__Controls_Updated.png)
 
 >   There are already some tracks, uploaded by default for my personal library. Hope you will appreciate the default playlist. Anyway, you can **drag and drop** your own music files (even folders in the Chrome browser) to be played immediately.
+
+
+
+#### *Wiki How* Control Panel GUI
+
+Clicking on *Open Controls*, the Control Panel GUI will be displayed. You can play with some audio or lights parameters, change the *wave lines* colors or tune new dimensions for the cubes/bars around the *Main Sphere*. 
+
+Also if you are curious to see the view from infinity, click/tap on `ZOOM-OUT` button (switch it back to stay with the camera in the *good* *zone*).
+
+In the <u>top-left corner</u> of the controls you can save and select the current configurations/values of the GUI controller. If, playing around with the controls, you found a interesting setup for you visualization - save it - or make screenshot. Also, I will be really happy to enjoy what you found. So, please share it with me. 
+
+That’s actually haw I found, by case,  ***The RocketPreset***  that you can select from the menu (when some music is playing). 
 
 
 
