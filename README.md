@@ -30,6 +30,10 @@ Ok... that was the dream. Now it’s true !
 
 
 
+***Wiki How* of the player**: 
+
+![Help insights](img\\Demo4__Controls_Updated.png)
+
 >   There are already some tracks, uploaded by default for my personal library. Hope you will appreciate the default playlist. Anyway, you can **drag and drop** your own music files (even folders in the Chrome browser) to be played immediately.
 
 
