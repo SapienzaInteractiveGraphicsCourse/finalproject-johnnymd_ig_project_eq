@@ -45,7 +45,7 @@ NO models or animations was imported in this project.
 
 #### - Project Content
 
-##### <u>Hierarchical models</u>
+##### <u>--- Hierarchical models ---</u>
 
 >   **Must include at least one <u>and</u> more complex of the model used in *<u>homework2</u>***.
 
