@@ -49,7 +49,7 @@ NO models or animations was imported in this project.
 
 #### <u>--- **Hierarchical models** ---</u>
 
->   **Must include at least one <u>and</u> more complex of the model used in *<u>homework2</u>***.
+>   <u>**REQUIREMENTS**</u>: **Must include at least one <u>and</u> more complex of the model used in *<u>homework2</u>***.
 
 Main objects included in the Project:
 
