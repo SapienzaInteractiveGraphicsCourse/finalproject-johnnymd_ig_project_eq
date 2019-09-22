@@ -95,10 +95,17 @@
 				alpha_texture_path = 'img/stripes_alpha_texture_3.png',
 				spiralSphereNorth,
 				spiralSphereSouth,
-				radiusSS 		= 32,
+				radiusSS 		= 16,
 				ringsSS 		= 64,
 				segmentsSS		= 64,
 
+				lightNorthIntensity = 130,
+				lightNorthColor 	= 0x0101FC,
+				lightNorth,
+				lightSouth,
+				lightSouthColor 	= 0xFC0101,
+				lightSouthIntensity = 30,
+				offsetUpdateSpeed   = 0.23,			// Regulate the y-offset of the alpha texture at render time (scale the 'tdd' AVG); 
 
 				numWaves 	= segments,
 				waves 		= [],
@@ -169,6 +176,7 @@
 					alpha 			: false,	// default false
 					depth 			: true, 	// default true
 					powerPreference	: 'high-performance',
+					shadowMapEnable : true,
 					physicallyCorrectLights : true
 				} );
 
@@ -257,36 +265,6 @@
 
 					});
 
-				// Create two animated spiral spheres to be included on the poles of the main sphere 
-				function createSpiralSpheres()
-				{
-					// Create the sphere geometry;
-					var sphereGeometry = new THREE.SphereGeometry(radiusSS, segmentsSS, ringsSS);
-					
-					// Create the material for the spiral sphere
-					var material = new THREE.MeshStandardMaterial({
-											side        : THREE.DoubleSide, 		// we need to enable the double side rendering; 	
-											color       : 0x000000,
-											transparent : true,
-											alphaTest   : 0.5
-										});
-
-					// Load the alpha texture image 
-					var alphaTexture = new THREE.TextureLoader().load(alpha_texture_path);
-
-					// Add the alpha texture to the material and setup it
-					material.alphaMap            = alphaTexture;
-					material.alphaMap.magFilter  = THREE.NearestFilter;
-					material.alphaMap.wrapT      = THREE.RepeatWrapping;
-					material.alphaMap.repeat.y   = 1;
-
-					spiralSphereNorth = new THREE.Mesh(sphereGeometry, material);
-					spiralSphereSouth = spiralSphereNorth.clone();
-
-					sphere.add(spiralSphereNorth);
-					sphere.add(spiralSphereSouth);
-				}; 	// --- END createSpiralSpheres() --- //
-
 
 				// Creates the main sphere //
 				function createSphere() 
@@ -304,10 +282,10 @@
 					sphere = new THREE.Mesh( 
 									new THREE.SphereGeometry( radius, segments, rings), 
 									new THREE.MeshNormalMaterial({
-											wireframe   : true,
+											wireframe   : false,
 											transparent	: true,  
 											flatShading	: true, 
-											opacity    	: 0.016,
+											opacity    	: 0.001,
 											fog 		: false 	// we have black fog in the scene
 										})
 								 );
@@ -457,63 +435,45 @@
 				}; 	// --- END createSphere() --- //
 
 
-				//#########################//
-				//####    Audio Data   ####//
-				//#########################//
 
-				// Log wavesurfer's warnings
-				wavesurfer.on('error', function(e) {
-        				console.warn(e);
-    			});
-
-				// Get the wavesurfer's analyser node object
-				analyser 	= wavesurfer.backend.analyser;
-
-				// 'channelCountMode' is set to 'explicit' on an analyserNode,
-				// so we can get the correct # of channels of the AudioNode in input 
-				numChannels = analyser.channelCount;
-				console.log("DEBUG:\n\tnumChannels = " + numChannels);
-
-				// Set the FFT size (default fftSize=2048)(powers of 2)
-				//         (fft scale to one channel size)
-				analyser.fftSize = fftSize * numChannels;
-
-				// FFT time averaging (0 meaning no time averaging). The default value is 0.8;
-				analyser.smoothingTimeConstant = smoothingTimeConstantFFT;
-
-				// Initialize the buffers for the Frequency and Time Domain Data:
-				//     (it will be updated on 'onaudioprocess' event firing)
-				fft 		= new Uint8Array(analyser.frequencyBinCount);
-				tdd 		= new Uint8Array(analyser.fftSize);		// this array should be the same length as the fftSize of the analyser;
-
-				//         Array that will track smoothly the frequencies variations in time 
-				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing);
-				peaks 		= new Float32Array(fftSize);
-
-				console.log("DEBUG:\n\tfft-length \t\t= " + fft.length + "\n\tpeaks-length \t= " + peaks.length + "\n\ttdd-length \t\t= " + tdd.length);
-
-
-				// Run when audio data is available (after fft updates)
-				function onAudioAvailable()
+				// Create two animated spiral spheres to be included on the poles of the main sphere 
+				function createSpiralSpheres()
 				{
-					// Compute and get the peaks' values of the audio signal
-					for (var i=0,  fft_size = fft.length; i < fft_size; i++)
-					{
-						// Equalizer: attenuate low frequents and boost the high ones
-						//fft[i] *= -1 * Math.log((fft_size / 2 - 1.0*i) * (0.5 / fft_size / 2)) * fft_size;
+					// Create the sphere geometry;
+					var sphereGeometry = new THREE.SphereGeometry(radiusSS, segmentsSS, ringsSS);
+					
+					// Create the material for the spiral sphere
+					var material = new THREE.MeshStandardMaterial({
+											side        : THREE.DoubleSide, 		// back side rendering; 	
+											color       : 0x000000,
+											lights 		: true,
+											transparent : true,
+											alphaTest   : 0.5
+										});
 
-						if (peaks[i] < fft[i] + deltaPeaks) // to much vibration 
-						{
-							// Assign a new peak value
-							peaks[i] = fft[i];
-						} 
-						else 
-						{
-							// decreasing the peak slowly till a new peaks is found
-							peaks[i] *= peaksDecreasingParam;
-						}
-					}
-				}; // --- END onAudioAvailable() --- //
+					// Load the alpha texture image 
+					var alphaTexture = new THREE.TextureLoader().load(alpha_texture_path);
+
+					// Add the alpha texture to the material and setup it
+					material.alphaMap            = alphaTexture;
+					material.alphaMap.magFilter  = THREE.NearestFilter;
+					material.alphaMap.wrapT      = THREE.RepeatWrapping;
+					material.alphaMap.repeat.y   = 1;
+
+					spiralSphereNorth = new THREE.Mesh(sphereGeometry, material);
+					spiralSphereSouth = spiralSphereNorth.clone();
+
+					sphere.add(spiralSphereNorth);
+					sphere.add(spiralSphereSouth);
+
+
+					spiralSphereSouth.position.y += radius;
+					spiralSphereNorth.position.y -= radius;
+
+					spiralSphereNorth.rotation.x = Math.PI;
+
+				}; 	// --- END createSpiralSpheres() --- //
+
 
 
 				// Creates and adds a set of lines (splineCurves) to the main sphere
@@ -577,6 +537,66 @@
 				}; // --- END createLines() --- //
 
 
+
+				//#########################//
+				//####    Audio Data   ####//
+				//#########################//
+
+				// Log wavesurfer's warnings
+				wavesurfer.on('error', function(e) {
+        				console.warn(e);
+    			});
+
+				// Get the wavesurfer's analyser node object
+				analyser 	= wavesurfer.backend.analyser;
+
+				// 'channelCountMode' is set to 'explicit' on an analyserNode,
+				// so we can get the correct # of channels of the AudioNode in input 
+				numChannels = analyser.channelCount;
+				console.log("DEBUG:\n\tnumChannels = " + numChannels);
+
+				// Set the FFT size (default fftSize=2048)(powers of 2)
+				//         (fft scale to one channel size)
+				analyser.fftSize = fftSize * numChannels;
+
+				// FFT time averaging (0 meaning no time averaging). The default value is 0.8;
+				analyser.smoothingTimeConstant = smoothingTimeConstantFFT;
+
+				// Initialize the buffers for the Frequency and Time Domain Data:
+				//     (it will be updated on 'onaudioprocess' event firing)
+				fft 		= new Uint8Array(analyser.frequencyBinCount);
+				tdd 		= new Uint8Array(analyser.fftSize);		// this array should be the same length as the fftSize of the analyser;
+
+				//         Array that will track smoothly the frequencies variations in time 
+				// (it will be updated in onAudioAvailable() function, on 'onaudioprocess' event firing);
+				peaks 		= new Float32Array(fftSize);
+
+				console.log("DEBUG:\n\tfft-length \t\t= " + fft.length + "\n\tpeaks-length \t= " + peaks.length + "\n\ttdd-length \t\t= " + tdd.length);
+
+
+				// Run when audio data is available (after fft updates)
+				function onAudioAvailable()
+				{
+					// Compute and get the peaks' values of the audio signal
+					for (var i=0,  fft_size = fft.length; i < fft_size; i++)
+					{
+						// Equalizer: attenuate low frequents and boost the high ones
+						//fft[i] *= -1 * Math.log((fft_size / 2 - 1.0*i) * (0.5 / fft_size / 2)) * fft_size;
+
+						if (peaks[i] < fft[i] + deltaPeaks) // to much vibration 
+						{
+							// Assign a new peak value
+							peaks[i] = fft[i];
+						} 
+						else 
+						{
+							// decreasing the peak slowly till a new peaks is found
+							peaks[i] *= peaksDecreasingParam;
+						}
+					}
+				}; // --- END onAudioAvailable() --- //
+
+
 				// 'onKeyDown' events function 
 			    function setupKeyControls(e) {
 			    	// var x = camera.position.x,
@@ -589,9 +609,9 @@
 			        		changeWavesColor = true;
 			        		break;
 			        
-			       		default:
-			       			console.log("DEBUG: pressed key: " + e.keyCode + " === " + e.code);
-			       			break;
+			       		//default:
+			       			//console.log("DEBUG: pressed key: " + e.keyCode + " === " + e.code);
+			       			//break;
 			        } 	// --- END switch --- //
 					// Update camera and look again at the origin			        
 			        // camera.lookAt(scene.position);
@@ -600,13 +620,28 @@
 			    }; 	// --- END setupKeyControls(e)
 
 
+			    // Add light to the spiral Spheres
+			    function addLight()
+			    {
+					lightNorth = new THREE.PointLight(lightNorthColor, lightNorthIntensity);
+					lightNorth.decay = 2;
+
+					lightSouth = new THREE.PointLight(lightSouthColor, lightSouthIntensity);
+					lightSouth.decay = 2;
+
+					spiralSphereNorth.add(lightNorth);
+					spiralSphereSouth.add(lightSouth);
+			    }
 
 
 				// Create the (main) sphere
 				createSphere();
 
 				// Create the alpha texture animated spiral spheres
-				// createSpiralSpheres();
+				createSpiralSpheres();
+
+				// Add the lights to the spiral sphere
+				addLight();
 
 				// Create the wave lines
 				createLines();
@@ -640,15 +675,19 @@
 			};  // --- END animate() --- //
 
 
+			//##################################//
+			//####  //\\// RENDERER \\//\\  ####//
+			//##################################//			
 			function render()
 			{
-				var time = Date.now() * 0.001;
+				var tddAvg 	= 1.0,
+					time 	= Date.now() * 0.001;
 				//console.log("DEBUG:\ntime = " + time);
 
 				if (analyser) 	// "analyser" needs to be active here ! //
 				{
 					// Cubes scale's update as 'fft' variates //
-					var cube;
+					var cube, sum;
 					for (var i=0, fft_size = peaks.length; i < numCubes; i++)
 					{
 						cube 		= cubes[i];
@@ -663,23 +702,25 @@
 					// Lines points update as 'tdd' variates //
 					if (wavesCreated && tdd[0] > 0)
 					{
+						// Get the array average for spiral spheres' y-offset speed change
+						sum 	= tdd.reduce(function(a, b) { return a + b; });
+    					tddAvg 	= sum / tdd.length;
 						updateLines();
-						//console.log("waves[0] = " + waves[0].geometry.attributes.position.array.length);
 					}  
 				}
+
+				// Spiral spheres alpha texture animation (y-offset variation)(buffer bouncing effect)
+				spiralSphereNorth.material.alphaMap.offset.y  = offsetUpdateSpeed * tddAvg; 	// 10 * tddAvg * Math.cos(0.24 * time);
+				spiralSphereSouth.material.alphaMap.offset.y  = offsetUpdateSpeed * tddAvg; 	// 10 * tddAvg * Math.cos(0.24 * time);
+				
+				// Make the lights bouncing
+				lightNorth.position.y = spiralSphereNorth.position.y + offsetUpdateSpeed * tddAvg;
+				lightSouth.position.y = spiralSphereSouth.position.y - offsetUpdateSpeed * tddAvg;
 
 				// Sphere rotation (all the hierarchical structure of the sphere will rotate)
 				sphere.rotation.x     = 0.7 * Math.sin(0.45 * time) + 1.72;
 				sphere.rotation.y     = 0.6 * Math.sin(0.35 * time) + 2.31;
 				sphere.rotation.z     = 0.5 * Math.cos(0.15 * time) + 1.57;
-
-				// Sphere opacity fading in/out periodically
-				//	('abs' -> avoid the full opacity fading)
-				// sphere.material.opacity = Math.abs(0.15 * (1 + Math.sin( clock.getElapsedTime() ) ) - 0.35) + 0.05;
-
-				// Spiral spheres alpha texture animation (y-offset variation in time)
-				// spiralSphereNorth.material.alphaMap.offset.y  = 0.55 * Math.cos(0.24 * time);
-				// spiralSphereSouth.material.alphaMap.offset.y  = 0.55 * Math.cos(0.24 * time);
 
 				// Particle systems' rotation
 				for (var i = particles_systems.length - 1; i >= 0; i--) {
@@ -688,7 +729,6 @@
 					particles_systems[i].rotation.z  = 0.53 * Math.sin(0.21 * time) + 0.13 * (i+1); 
 				}
 
-
 				// Render the scene
 				renderer.render(scene, camera);
 			
@@ -696,63 +736,63 @@
 
 
 			function updateLines()
+			{
+				var deltaPhi 	= 2*Math.PI / numWaves,
+					nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
+					tdd_size 	= tdd.length,
+					pickRate    = 32,
+					delta_x		= (2*radius + 6) / tdd_size * pickRate;
+
+				for (var i = 0; i < waves.length; i++)
 				{
-					var deltaPhi 	= 2*Math.PI / numWaves,
-						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
-						tdd_size 	= tdd.length,
-						pickRate    = 32,
-						delta_x		= (2*radius + 6) / tdd_size * pickRate;
+					var splineCurve,
+						linePoints,
+						waveColor	= getRandomColor(), 	// Get a random HEX color
+						curvePoints	= [],
+						x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
+						oldBufferPositions = waves[i].geometry.attributes.position.array; 	
 
-					for (var i = 0; i < waves.length; i++)
+					for (var j = tdd_size - 1; j >= 0; j -= pickRate)
 					{
-						var splineCurve,
-							linePoints,
-							waveColor	= getRandomColor(), 	// Get a random HEX color
-							curvePoints	= [],
-							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
-							oldBufferPositions = waves[i].geometry.attributes.position.array; 	
-
-						for (var j = tdd_size - 1; j >= 0; j -= pickRate)
-						{
-							curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
-							x_pos += delta_x;				
-						}						
+						curvePoints.push(new THREE.Vector2( x_pos , 4*((tdd[j] - 255/2)/10)));
+						x_pos += delta_x;				
+					}						
 					
-						// Build the SplineCurve
-						splineCurve = new THREE.SplineCurve( curvePoints );
+					// Build the SplineCurve
+					splineCurve = new THREE.SplineCurve( curvePoints );
 
-						// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
-						linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
+					// Get enough points for the SplineCurve in order to build a smooth wave line (greater --> better --> costly)
+					linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
 
-						var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
-						var waveMaterial = new 	THREE.LineBasicMaterial({ 
-													color : waveColor 
-												});
-						// Create the final object to get the properties from
-						var wave = new THREE.Line( waveGeometry, waveMaterial );
+					var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
+					var waveMaterial = new 	THREE.LineBasicMaterial({ 
+												color : waveColor 
+											});
+					// Create the final object to get the properties from
+					var wave = new THREE.Line( waveGeometry, waveMaterial );
 
-						// COPY the position arrays content from the new 'wave'
-						var newBufferpositions 	= wave.geometry.attributes.position.array;
-						for ( var index = 0, l = oldBufferPositions.length; index < l; index ++ ) {
-							oldBufferPositions[ index ] = newBufferpositions[ index ];
-							oldBufferPositions[ index ] = newBufferpositions[ index ];
-							oldBufferPositions[ index ] = newBufferpositions[ index ];
-							if (changeWavesColor)
-							{
-								waves[i].material.color = wave.material.color;  	// update colors on-demand;
-							}
+					// COPY the position arrays content from the new 'wave'
+					var newBufferpositions 	= wave.geometry.attributes.position.array;
+					for ( var index = 0, l = oldBufferPositions.length; index < l; index ++ ) {
+						oldBufferPositions[ index ] = newBufferpositions[ index ];
+						oldBufferPositions[ index ] = newBufferpositions[ index ];
+						oldBufferPositions[ index ] = newBufferpositions[ index ];
+						if (changeWavesColor)
+						{
+							waves[i].material.color = wave.material.color;  	// update colors on-demand;
 						}
-						waves[i].geometry.attributes.position.needsUpdate = true; 	// required after the first render
-						sphere.geometry.computeBoundingSphere();
 					}
-					changeWavesColor = false; 										// update colors on-demand;
+					waves[i].geometry.attributes.position.needsUpdate = true; 	// required after the first render
+					sphere.geometry.computeBoundingSphere();
+				}
+				changeWavesColor = false; 										// update colors on-demand;
 			};
 
 
 			//###############################//
 			//####    Helper Functions   ####//
 			//###############################//
-			//
+			
 				// Returns a random number between min (inclusive) and max (exclusive)
 				function randomRangeNumber(min, max) {
 				    return Math.random() * (max - min) + min;
@@ -786,13 +826,25 @@
 							controls.maxDistance = controls.maxDistance === Infinity  ?  no_particle_space  : Infinity;
 							if (controls.maxDistance === no_particle_space  &&  Math.abs(camera.position.z) > no_particle_space) camera.position.z = no_particle_space;
 						},
-						smoothness 			: 0.0,
+
+						Smoothness 			: 0.0,
 						PeaksTresholdUpdate	: 10.0,
 						PeaksDecreasingRate : 0.96,
 						AudioVolume 		: 1.0,
+
 						cubeScale_L 		: 0.0,
 						cubeScale_l 		: 0.0,
-						cubeScale_h 		: 0.0
+						cubeScale_h 		: 0.0,
+
+						NorthIntensity  	: 30,
+						NorthColor 	    	: "#0101FC",
+
+						SouthColor 	    	: "#FC0101",
+						SouthIntensity  	: 30,
+
+						SetSideRengering 	: THREE.DoubleSide,  // spiral spheres internal side rendering ( THREE.DoubleSide )
+						
+						BounceSpeed 		: 0.23
 					};
 
 				// GUI controller
@@ -800,51 +852,75 @@
 				{
 					gui = new dat.GUI({
 								closeOnTop 	: false,
-								width 		: 236,
+								width 		: 300,
 								load 		: getPresets(),
 								preset 		: 'BestPreset' 
 							});
 
 					gui.remember(controller);
 
-					gui.add(controller, "SET_DEFAULT");
+					gui.add(controller, "SET_DEFAULT").name("SET DEFAULT");
 
 					var f1 = gui.addFolder('Audio'); 		f1.open();
-					f1.add(controller, "smoothness", 0.0, 1.0, 0.01).onChange(function()
-					{
-						analyser.smoothingTimeConstant = controller.smoothness;
-					});
-					f1.add(controller, "PeaksTresholdUpdate", -255.0, 255.0, 0.5).onChange(function()
-					{
-						deltaPeaks = controller.PeaksTresholdUpdate;
-					});
-					f1.add(controller, "PeaksDecreasingRate", 0.5, 1.0, 0.001).onChange(function()
-					{
-						peaksDecreasingParam = controller.PeaksDecreasingRate;
-					});
-					f1.add(controller, "AudioVolume", 0.0, 1.0, 0.01).onChange(function()
-					{ 
-						wavesurfer.setVolume(controller.AudioVolume);
-					});
+						f1.add(controller, "Smoothness", 0.0, 1.0, 0.01).onChange(function()
+						{
+							analyser.smoothingTimeConstant = controller.Smoothness;
+						});
+						f1.add(controller, "PeaksTresholdUpdate", -255.0, 255.0, 0.5).onChange(function()
+						{
+							deltaPeaks = controller.PeaksTresholdUpdate;
+						});
+						f1.add(controller, "PeaksDecreasingRate", 0.5, 1.0, 0.001).onChange(function()
+						{
+							peaksDecreasingParam = controller.PeaksDecreasingRate;
+						});
+						f1.add(controller, "AudioVolume", 0.0, 1.0, 0.01).onChange(function()
+						{ 
+							wavesurfer.setVolume(controller.AudioVolume);
+						}).name("Change Audio Volume");
 
 
-					var f2 = gui.addFolder('Wave Lines');
-					f2.add(controller, "changeWavesColor");
+					var f2 = gui.addFolder('Colors and Light'); 	f2.open();
+						f2.add(controller, "changeWavesColor").name("Change Wave Lines Colors (Random)");
+						f2.add(controller, "BounceSpeed", -2.0, 2.0, 0.01).onChange(function()
+						{
+							BounceSpeed = controller.BounceSpeed;
+						}).name("Bounce Speed");
+						f2.addColor(controller, "NorthColor").onChange(function(){
+							lightNorthColor = new THREE.Color( controller.NorthColor ).getHex();
+							lightNorth.color.setHex( lightNorthColor );
+						}).name("North Light Color");
+						f2.addColor(controller, "SouthColor").onChange(function(){
+							lightSouthColor = new THREE.Color( controller.SouthColor ).getHex();
+							lightSouth.color.setHex( lightSouthColor );
+						}).name("South Light Color");
+						f2.add(controller, "NorthIntensity", 0, 200, 0.5).onChange(function(){
+							lightNorthIntensity  	= controller.NorthIntensity;
+							lightNorth.intensity 	= lightNorthIntensity;
+						}).name("North Light Intensity");
+						f2.add(controller, "SouthIntensity", 0, 200, 0.5).onChange(function(){
+							lightSouthIntensity 	= controller.SouthIntensity;
+							lightSouth.intensity 	= lightSouthIntensity;
+						}).name("South Light Intensity");
+						f2.add(controller, "SetSideRengering", { Front: THREE.FrontSide,  Back: THREE.BackSide, Double: THREE.DoubleSide }).onChange(function(){
+							spiralSphereNorth.material.side = controller.SetSideRengering;
+							spiralSphereSouth.material.side = controller.SetSideRengering;
+						}).name("Set Side Rendering (Material)");
 
 
 					var f3 = gui.addFolder('Cubes/Bars');
-					f3.add(controller, "cubeScale_L", -1.0, 1.0, 0.005).onChange(function()
-					{
-						cube_L_coef = controller.cubeScale_L;
-					});
-					f3.add(controller, "cubeScale_l", -1.0, 1.0, 0.005).onChange(function()
-					{
-						cube_l_coef = controller.cubeScale_l;
-					});
-					f3.add(controller, "cubeScale_h", -3.0, 3.0, 0.005).onChange(function()
-					{
-						cube_h_coef = controller.cubeScale_h;
-					});
+						f3.add(controller, "cubeScale_L", -1.0, 1.0, 0.005).onChange(function()
+						{
+							cube_L_coef = controller.cubeScale_L;
+						});
+						f3.add(controller, "cubeScale_l", -1.0, 1.0, 0.005).onChange(function()
+						{
+							cube_l_coef = controller.cubeScale_l;
+						});
+						f3.add(controller, "cubeScale_h", -3.0, 3.0, 0.005).onChange(function()
+						{
+							cube_h_coef = controller.cubeScale_h;
+						});
 
 
 					gui.add(controller, "ZOOM_OUT__ON_OFF");
@@ -859,7 +935,7 @@
 							  "remembered": {
 							    "Default": {
 							      "0": {
-							        "smoothness": 0,
+							        "Smoothness": 0,
 							        "PeaksTresholdUpdate": 10,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
@@ -870,7 +946,7 @@
 							    },
 							    "BestPreset": {
 							      "0": {
-							        "smoothness": 0,
+							        "Smoothness": 0,
 							        "PeaksTresholdUpdate": 10,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
@@ -881,7 +957,7 @@
 							    },
 							    "RocketPreset": {
 							      "0": {
-							        "smoothness": 0,
+							        "Smoothness": 0,
 							        "PeaksTresholdUpdate": -230,
 							        "PeaksDecreasingRate": 0.96,
 							        "AudioVolume": 1,
@@ -916,7 +992,7 @@
 				function setDefaultParams()
 				{
 					numParticles 	= 1600;
-					
+										
 					cubeSize 		= 8;
 					cube_L_coef		= 0; //1.6;
 					cube_l_coef 	= 0; //0.5;
@@ -926,6 +1002,12 @@
 					wavesurfer.setVolume(1.0);
 					deltaPeaks            = 10.0;
 					peaksDecreasingParam  = 0.96;
+
+					lightNorthColor 	= 0x0101FC;
+					lightSouthColor 	= 0xFC0101;
+					lightNorthIntensity = 130;
+					lightSouthIntensity = 30;
+					offsetUpdateSpeed   = 0.23;
 
 					controls.maxDistance = no_particle_space;
 					camera.position.z 	 = no_particle_space;
