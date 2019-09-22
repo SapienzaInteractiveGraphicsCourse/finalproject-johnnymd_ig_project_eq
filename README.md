@@ -314,4 +314,4 @@ The code is well commented. So for further details about the implementation cons
 
 Also a good view about the development process could be seen in the commit trace.
 
-For other question, please, contact me.
+For any questions, please, contact me.
