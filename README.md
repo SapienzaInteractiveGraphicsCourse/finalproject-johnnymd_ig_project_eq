@@ -352,6 +352,10 @@ Also, setting the  `antialias`  to  `true`  enables **antialiasing**, that is cr
 
 The Camera movement in the scene is managed by the famous Three.JS  ***OrbitControls***   object;
 
+The  `smoothingTimeConstant`  parameter of the  `analyser`  object  can be updated asynchronously in the *Control Panel GUI*  and  it is responsible of how responsive is the  `fft`  (current `fft` overlapped in average with the latest ones)  -  smooth frequency variation in time.
+
+
+
 .	.	.
 
 
