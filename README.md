@@ -273,6 +273,38 @@ tdd 		= new Uint8Array(analyser.fftSize);
 
 
 
+### The Spiral Spheres
+
+The two spheres are added to the poles of the *Main Sphere* and are connected to each other with the *Wave Lines*. The sphere have applied an alpha texture taken from an alpha map image (loaded in very beginning). 
+
+`var alphaTexture= new THREE.TextureLoader().load(alpha_texture_path)`.
+
+The material, as we mentioned, is a `THREE.MeshStandardMaterial()` with double side rendering enabled and transparent properties setted to true. The texture is applied as follows to get the desired effect:
+
+```javascript
+// Add the alpha texture to the material and setup it
+material.alphaMap            = alphaTexture;
+material.alphaMap.magFilter  = THREE.NearestFilter;
+material.alphaMap.wrapT      = THREE.RepeatWrapping;
+material.alphaMap.repeat.y   = 1;
+```
+
+Note that the Material’s  `.side`  property can be updated asynchronously by the Control Panel GUI (default is  setted to`DoubleSide`).
+
+The two spheres are added to the main sphere as folows:
+
+```javascript
+spiralSphereNorth = new THREE.Mesh(sphereGeometry, material);
+spiralSphereSouth = spiralSphereNorth.clone();
+
+sphere.add(spiralSphereNorth);
+sphere.add(spiralSphereSouth);
+```
+
+Note how create the second sphere, that is identical to the other, by using the  `.clone()`  function of the Three.JS meshes.
+
+
+
 
 
 
