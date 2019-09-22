@@ -122,7 +122,7 @@
 			    numCubes,
 
 				particles_systems = [],
-				no_particle_space = 1.0 * 540,
+				no_particle_space = 0.7 * 540,
 
 				analyser,			// Web Audio API analyser node var;
 			    numChannels,
@@ -211,8 +211,8 @@
 					// and add them to the DOM
 					stats = new Stats();
 					stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-					stats.dom.style.top 	= '10px';
-					stats.dom.style.left 	= '10px';
+					stats.dom.style.top 	= '3px';
+					stats.dom.style.left 	= '1px';
 					document.body.appendChild( stats.dom );
 
 
@@ -484,7 +484,7 @@
 						nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
 						tdd_size 	= tdd.length,
 						pickRate    = 32, 
-						delta_x		= (2*radius + 6) / tdd_size * pickRate;
+						delta_x		= (2*radius - 1.5 * radiusSS) / tdd_size * pickRate;
 
 					for (var j = 0; j < numWaves; j++)
 					{
@@ -492,7 +492,7 @@
 							linePoints,
 							waveColor	= getRandomColor(), 	// Get a random HEX color
 							curvePoints	= [],
-							x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
+							x_pos		= 0 - radius + (1.5 / 2)*radiusSS;// sphere centered in (0, 0, 0)	
 
 
 						for (var i = tdd_size - 1; i >= 0; i -= pickRate)
@@ -651,6 +651,7 @@
 
 				// Call the GUI controller
 				guiController();
+				gui.closed = true;
 
 			}; // --- END init() --- //
 
@@ -741,7 +742,7 @@
 					nextAngle 	= deltaPhi / 2,				// set the picks in the desired position (start-angle)
 					tdd_size 	= tdd.length,
 					pickRate    = 32,
-					delta_x		= (2*radius + 6) / tdd_size * pickRate;
+					delta_x		= (2*radius - 1.5 * radiusSS) / tdd_size * pickRate;
 
 				for (var i = 0; i < waves.length; i++)
 				{
@@ -749,7 +750,7 @@
 						linePoints,
 						waveColor	= getRandomColor(), 	// Get a random HEX color
 						curvePoints	= [],
-						x_pos		= 0 - radius - 3; 		// sphere centered in (0, 0, 0)	
+						x_pos		= 0 - radius + (1.5 / 2)*radiusSS; 		// sphere centered in (0, 0, 0)	
 						oldBufferPositions = waves[i].geometry.attributes.position.array; 	
 
 					for (var j = tdd_size - 1; j >= 0; j -= pickRate)
@@ -851,11 +852,11 @@
 				function guiController()
 				{
 					gui = new dat.GUI({
-								closeOnTop 	: false,
 								width 		: 300,
 								load 		: getPresets(),
 								preset 		: 'BestPreset',
-								closed 		: true
+								closeOnTop : true,
+								closed 		: false
 							});
 
 					gui.remember(controller);
@@ -924,15 +925,16 @@
 						});
 
 
-					gui.add(controller, "ZOOM_OUT__ON_OFF");
+					gui.add(controller, "ZOOM_OUT__ON_OFF").name("ZOOM-OUT switch ON/OFF");
 
 				}; // --- END guiController() --- //
 
 					// presetJSON: created from pressing the gear.
 					function getPresets() {
 						return {
-							  "preset": "BestPreset",
-							  "closed": true,
+							  "preset"     : "BestPreset",
+							  "closeOnTop" : true,
+							  "closed"     : false,
 							  "remembered": {
 							    "Default": {
 							      "0": {
