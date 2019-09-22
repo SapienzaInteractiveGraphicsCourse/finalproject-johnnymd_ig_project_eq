@@ -108,7 +108,7 @@ Main objects included in the Project:
 
 
 
-#### <u>--- **Lights and Textures** ---</u>
+#### <u>--- **Lights, Textures and Materials** ---</u>
 
 >   **<u>REQUIREMENTS</u>**: **At least one light, textures of different kinds (*color*, *normal*, *specular*, ... )**:
 
@@ -118,7 +118,9 @@ Main objects included in the Project:
 
 *The Spiral Spheres* are two almost identical meshes created from two sphere geometries with an **alpha texture** (particular *alphaMap* settings ), animated by changing the texture offsets, are added to *The Main Sphere* hierarchical object with a **Point Light** inside each (*DoubleSide* *Rendering*  -  `THREE.MeshStandardMaterial()`) .
 
-*The Wave Lines* (***time domain representation of the signal***) are generated  (and updated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*...
+
+
+*The Wave Lines* (***time domain representation of the signal wave***) are generated  (and updated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*. From this array is created a buffer with `THREE.Vector2()` points (we need just x-offset on the line and y-offset for the high), that is used to create `new THREE.SplineCurve()` that give us a smooth and round curve. For efficiency reasons the `SplineCurve` is not rendered, but we can sample a smaller set of points from it in order to create a simple `BasicMaterial` line with `THREE.Line()`. 
 
 
 
@@ -156,6 +158,35 @@ The things I changed respect to the original demo consists in:
 -   Restyling some of the player components (see `style/player-style/style.css`);
 -   Added some extra functionalities to the player:
     1.  function createDefaultPlaylist
+
+
+
+
+
+### The Wave Lines
+
+*The Wave Lines* (***time domain representation of the signal wave***) are generated  (and updated at render time) starting from the *Time Domain Data* array updated continuously by the *Analyser Node* of the *Web Audio API*. From this array is created a buffer with `THREE.Vector2()` points (we need just x-offset on the line and y-offset for the high), that is used to create `new THREE.SplineCurve()` that give us a smooth and round curve. For efficiency reasons the `SplineCurve` is not rendered, but we can sample a smaller set of points from it in order to create a simple `BasicMaterial` line. Much more efficient computationally.
+
+```javascript
+ 	var delta_x		= (2*radius - 1.5 * radiusSS) / tdd_size * pickRate;
+	// 			.	.	.
+	// Build the SplineCurve
+ 	splineCurve = new THREE.SplineCurve( curvePoints );
+
+	// Get enough points for the SplineCurve in order 
+	// to build a smooth wave line (greater --> better --> costly)
+	linePoints 	= splineCurve.getPoints( tdd_size * sampleRate );
+
+	var waveGeometry = new 	THREE.BufferGeometry().setFromPoints( linePoints );
+	var waveMaterial = new 	THREE.LineBasicMaterial({ color : waveColor });
+	
+	// Create the final object to add to the scene
+	var wave = new THREE.Line( waveGeometry, waveMaterial );
+	
+	// after each line are rotated be an angle, uniformly over (2*PI) period
+	// 			.	.	.
+	wave.geometry.computeBoundingSphere();// need to be recomputed after the rotations
+```
 
 
 
