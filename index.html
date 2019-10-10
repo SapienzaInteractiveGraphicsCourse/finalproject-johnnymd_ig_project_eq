@@ -624,6 +624,16 @@
 			        	case 49:    // 	 1   (Num. 1 key)
 			        		changeWavesColor = true;
 			        		break;
+
+			        	case 27: 	//  Esc  // Close the playlist
+			        			var expandBar_close = $('#expand-bar');
+								if(expandBar_close.hasClass('hidden')){
+									// do nothing (we need just to close it eventually)
+								}
+								else{
+									expandBar_close.addClass('hidden');
+									$(this).attr('title', 'Show Playlist');
+								}
 			        
 			       		//default:
 			       			//console.log("DEBUG: pressed key: " + e.keyCode + " === " + e.code);
