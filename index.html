@@ -270,7 +270,7 @@
 						// });
 
 
-					// 'audioprocess' event fires continuously as the audio plays. Also fires on seeking.
+					// 'audioprocess' event fires continuously as the audio plays.
 					wavesurfer.on('audioprocess', function(e) {
 						// update the 'fft' and 'tdd' arrays
 						analyser.getByteFrequencyData(	fft  );
@@ -624,16 +624,6 @@
 			        	case 49:    // 	 1   (Num. 1 key)
 			        		changeWavesColor = true;
 			        		break;
-
-			        	case 27: 	//  Esc  // Close the playlist
-			        			var expandBar_close = $('#expand-bar');
-								if(expandBar_close.hasClass('hidden')){
-									// do nothing (we need just to close it eventually)
-								}
-								else{
-									expandBar_close.addClass('hidden');
-									$(this).attr('title', 'Show Playlist');
-								}
 			        
 			       		//default:
 			       			//console.log("DEBUG: pressed key: " + e.keyCode + " === " + e.code);
@@ -838,7 +828,7 @@
 				function getRandomColor() 	// string HEX color 
 				{
 					var c = '#'+Math.floor(Math.random()*16777215).toString(16);
-					while (c.length < 7)
+					while (c.length < 7) 	// We need a HEX color (7 chars)
 					{
 						c += Math.floor( Math.random()*10 ).toString();
 					}
@@ -859,13 +849,13 @@
 						},
 
 						Smoothness 			: 0.0,
-						PeaksTresholdUpdate	: 10.0,
-						PeaksDecreasingRate : 0.96,
+						PeaksTresholdUpdate	: -55.5,
+						PeaksDecreasingRate : 1.0,
 						AudioVolume 		: 1.0,
 
-						cubeScale_L 		: 0.0,
-						cubeScale_l 		: 0.0,
-						cubeScale_h 		: 0.0,
+						cubeScale_L 		: -0.7,
+						cubeScale_l 		: -0.7,
+						cubeScale_h 		: -1.19,
 
 						NorthIntensity  	: 30,
 						NorthColor 	    	: "#0101FC",
@@ -884,8 +874,8 @@
 					gui = new dat.GUI({
 								width 		: 300,
 								load 		: getPresets(),
-								preset 		: 'BestPreset',
-								closeOnTop : true,
+								preset 		: 'RockPreset',
+								closeOnTop  : true,
 								closed 		: false
 							});
 
@@ -912,7 +902,7 @@
 						}).name("Change Audio Volume");
 
 
-					var f2 = gui.addFolder('Colors and Light'); 	f2.open();
+					var f2 = gui.addFolder('Colors and Light'); 	f2.close();
 						f2.add(controller, "changeWavesColor").name("Change Wave Lines Colors (Random)");
 						f2.add(controller, "BounceSpeed", -2.0, 2.0, 0.01).onChange(function()
 						{
@@ -957,20 +947,21 @@
 
 					gui.add(controller, "ZOOM_OUT__ON_OFF").name("ZOOM-OUT switch ON/OFF");
 
+					gui.preset = "Default"
 				}; // --- END guiController() --- //
 
 					// presetJSON: created from pressing the gear.
 					function getPresets() {
 						return {
-							  "preset"     : "BestPreset",
+							  "preset"     : "RockPreset",
 							  "closeOnTop" : true,
 							  "closed"     : false,
 							  "remembered": {
 							    "Default": {
 							      "0": {
 							        "Smoothness": 0,
-							        "PeaksTresholdUpdate": 10,
-							        "PeaksDecreasingRate": 0.96,
+							        "PeaksTresholdUpdate": -55.50,
+							        "PeaksDecreasingRate": 1.0,
 							        "AudioVolume": 1,
 							        "BounceSpeed": 0.23,
 							        "NorthColor": "#0101FC",
@@ -978,12 +969,12 @@
 							        "NorthIntensity": 30,
 							        "SouthIntensity": 30,
 							        "SetSideRengering": 2,
-							        "cubeScale_L": 0,
-							        "cubeScale_l": 0,
-							        "cubeScale_h": 0
+							        "cubeScale_L": -0.7,
+							        "cubeScale_l": -0.7,
+							        "cubeScale_h": -1.19
 							      }
 							    },
-							    "BestPreset": {
+							    "BasicPreset": {
 							      "0": {
 							        "Smoothness": 0,
 							        "PeaksTresholdUpdate": 10,
@@ -1054,17 +1045,17 @@
 							  },
 							  "folders": {
 							    "Audio": {
-							      "preset": "Default",
+							      "preset": "RockPreset",
 							      "closed": false,
 							      "folders": {}
 							    },
 							    "Colors and Light": {
-							      "preset": "Default",
+							      "preset": "RockPreset",
 							      "closed": false,
 							      "folders": {}
 							    },
 							    "Cubes/Bars": {
-							      "preset": "Default",
+							      "preset": "RockPreset",
 							      "closed": true,
 							      "folders": {}
 							    }
